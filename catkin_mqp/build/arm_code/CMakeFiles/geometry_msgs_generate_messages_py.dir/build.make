@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/vboxuser/catkin_mqp/src
+CMAKE_SOURCE_DIR = /home/vboxuser/MQP-arm-code-vm/catkin_mqp/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/vboxuser/catkin_mqp/build
+CMAKE_BINARY_DIR = /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build
 
 # Utility rule file for geometry_msgs_generate_messages_py.
 
@@ -63,10 +63,10 @@ arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/build: geometry_msgs_
 .PHONY : arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
 
 arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean:
-	cd /home/vboxuser/catkin_mqp/build/arm_code && $(CMAKE_COMMAND) -P CMakeFiles/geometry_msgs_generate_messages_py.dir/cmake_clean.cmake
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build/arm_code && $(CMAKE_COMMAND) -P CMakeFiles/geometry_msgs_generate_messages_py.dir/cmake_clean.cmake
 .PHONY : arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
 
 arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/depend:
-	cd /home/vboxuser/catkin_mqp/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/vboxuser/catkin_mqp/src /home/vboxuser/catkin_mqp/src/arm_code /home/vboxuser/catkin_mqp/build /home/vboxuser/catkin_mqp/build/arm_code /home/vboxuser/catkin_mqp/build/arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/vboxuser/MQP-arm-code-vm/catkin_mqp/src /home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build/arm_code /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build/arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/depend
 

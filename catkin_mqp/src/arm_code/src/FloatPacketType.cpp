@@ -1,3 +1,4 @@
+#include <ros/ros.h>
 #include <vector>
 #include <cstring>
 #include <cstdint> 
@@ -22,6 +23,7 @@ std::vector<unsigned char> message;
 
 
 std::vector<double> FloatPacketType::getUpstream() {
+    ROS_INFO("getUpstream");
     return upstream;
 }
 
@@ -30,6 +32,7 @@ void FloatPacketType::setUpstream(std::vector<double> upstream) {
 }
 
 std::vector<double> FloatPacketType::getDownstream() {
+    ROS_INFO("getDownstream");
     return downstream;
 }
 
@@ -39,6 +42,7 @@ void FloatPacketType::setDownstream(std::vector<double> downstream) {
 
 FloatPacketType::FloatPacketType(int id, int size) {
     //super(id)
+    ROS_INFO("FloatPacketType constructor");
     packetSize = size;
     numberOfBytesPerValue = 4;
     numValues = packetSize / numberOfBytesPerValue - 4 / numberOfBytesPerValue;
@@ -50,12 +54,19 @@ FloatPacketType::FloatPacketType(int id, int size) {
     setDownstream(downst);
     std::vector<double> upst(numValues, 0);
     setUpstream(upst);
-    for (int i = 0; i < numValues; i++) {
-        getDownstream()[i] = 0.0;
+
+    //...this is already being done?
+    //what was I cooking. commenting out for now
+    /*for (int i = 0; i < numValues; i++) 
+        //getDownstream()[i] = 0.0;//TODO: initialize these I guess
+        downstream[i] = 0;
         getUpstream()[i] = 0.0;
-    } 
+    } */
 }
 
+/**
+ * parses bytes into a vector format that can be used by packets
+*/
 std::vector<double> FloatPacketType::parse(std::vector<unsigned char> bytes) {
     for (int i = 0; i < numValues; i++) {
         int baseIndex = 4 * i + 4;
@@ -72,6 +83,11 @@ int FloatPacketType::toInt(unsigned char byteValue) {
     return val;
 }
 
+/**
+ * TODO: wait this is void, passes by value
+ * here and writeid is where the actual calculation seems to be occuring
+ * @param
+*/
 void FloatPacketType::writeId(int idOfCommand, std::vector<unsigned char> bytes) {
     //4 bytes = int
     bytes[3] = (unsigned char)(idOfCommand >> 24);
@@ -80,11 +96,14 @@ void FloatPacketType::writeId(int idOfCommand, std::vector<unsigned char> bytes)
     bytes[0] = (unsigned char)idOfCommand; //corresponds with first byte being the reportid
 }
 
+/**
+ * @param idOfCommand, values id of what the current packet is and the values in the packet
+*/
 std::vector<unsigned char> FloatPacketType::command(int idOfCommand, std::vector<double> values) {
     writeId(idOfCommand, message);
     for (int i = 0; i < numValues && i < values.size(); i++) {
         int baseIndex = 4 * i + 4;
-        int bits = float_to_bits(((float)values[i])); //don't want to
+        int bits = float_to_bits(((float)values[i])); //TODO make sure it's being converted correctly
         message[0 + baseIndex] = (unsigned char)(bits & 0xFF);
         message[1 + baseIndex] = (unsigned char)(bits >> 8 & 0xFF);
         message[2 + baseIndex] = (unsigned char)(bits >> 16 & 0xFF);

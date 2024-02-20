@@ -13,6 +13,11 @@ private:
     //ros::Subscriber write_subscriber_;
     //ros::Subscriber read_subscriber_;
     ros::Subscriber<sensor_msgs::JointState> read_sub("controlInput", readCallback);
+    ros::Subscriber personality_subscriber_;
+    ros::Publisher _servo_jp_publisher;
+    ros::Publisher _arm_state_publisher_;
+
+    std_msgs::String state;
 
     //do we need this or do we only publish when it calls write
     ros::Timer current_write_timer_;
@@ -26,7 +31,9 @@ private:
 public:
     ROSWrapperArm()
     {
+        
         pos_subscriber_ = nh->subscribe(read_sub);
+        personality_subscriber_ = nh->subscribe(shown_personality);//subscribe to personality node
 
         
         /*
@@ -39,6 +46,12 @@ public:
         //servo_jp and pickAndPlace should be publishers
         sensor_msgs::JointState servo_jp_state;
         _servo_jp_publisher = nh->advertise<sensor_msgs::JointState>("servo_jp", servo_jp_state);
+
+        state = "stopped"
+        _arm_state_publisher = nh->advertise<sensor_msgs::JointState>("arm_code", state);//publishes whether arm is in the process of moving
+
+
+
     }
 
     //don't really need this??
@@ -52,11 +65,30 @@ public:
         current_speed_publisher_.publish(servo_jp_state);
     }
 
+    void publishArmState(const ros::TimerEvent &event)
+    {
+        _arm_state_publisher.publish(state);
+
+    }
+
 
     void stop()
     {
         robot->scddisconnect(); //just in case, might move it to main
         robot->stop();
+    }
+
+    void personalityCallback(const std_msgs::String mood){
+        if(strcmp(mood, "smirk") == 0){
+            //set state to moving
+            state = "moving";
+            //call the "smirk" pose
+        }
+        //and then do the rest of the emotions
+    }
+
+    void smirk(){
+        //call pickAndPlace and/or servo_jp to go to the appropriate place
     }
 
     //void readCallback(const sensor_msgs::JointState& servo_states){

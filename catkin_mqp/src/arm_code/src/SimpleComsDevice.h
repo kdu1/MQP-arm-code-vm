@@ -1,6 +1,7 @@
 //#include <vector>
 //#include <unordered_map>
 //#include "PacketType.h"
+#include <ros/ros.h>
 #include "FloatPacketType.h"
 //#include "Thread.h"
 //#include "Runnable.h" //circular
@@ -75,6 +76,20 @@ class SimpleComsDevice {
     
     private:
         std::vector<FloatPacketType> pollingQueue;
+        //ok so I got the usb to work but the vid/pid changed?? did the circuitpy stuff break it? or is it fine
+        //unsigned short vid = 0x16c0;
+        //unsigned short pid = 0x0486;
+        unsigned short vid = 0x239A;
+        unsigned short pid = 0x802c;
+        //wchar_t serial[1024];
+        //std::wcsncpy(serial, L"6E5B9DF04652375320202051413808FF", 1024); //TODO: error with this
+
+        //hid_device * handle = hid_open(vid, pid, NULL); //from hid.c
+
+        //Alternatively:open by path
+        const char* path; //= "/dev/hidraw1";
+        hid_device * handle; //= hid_open_path(path);//TODO: error
+
     public:
     
     // A Functor
@@ -114,6 +129,13 @@ class SimpleComsDevice {
         };
 
     };
+
+
+    /**
+    * Constructor
+    */
+    SimpleComsDevice(const char* path);
+
     
 
     //device:
@@ -125,14 +147,16 @@ class SimpleComsDevice {
     unsigned short pid = 0x0486;
     hid_device * handle = hid_open(vid, pid, NULL); //from hid.c*/
 
-     bool validHandle(hid_device * handle);
+    bool validHandle(hid_device * handle);
     //std::unordered_map<int, std::vector<Runnable>> events;
     
     
     
     
-     void addPollingPacket(FloatPacketType packet) {
+    void addPollingPacket(FloatPacketType packet) {
+        ROS_INFO("addPollingPacket");
         if (!(getPacket((int)packet.idOfCommand) == nullptr)){
+            ROS_ERROR("null");
             throw("Only one packet of a given ID is allowed to poll. Add an event to recive data"); 
         }
         pollingQueue.push_back(packet);
@@ -143,8 +167,27 @@ class SimpleComsDevice {
      * @return pollingQueue
     */
      std::vector<FloatPacketType> getPollingQueue(){
+        ROS_INFO("pollingqueue");
         return pollingQueue;
     }
+
+    /**
+     * get hid_device* handle
+     * @return handle
+    */
+    hid_device * getHandle(){
+        ROS_INFO("gethandle");
+        return handle;
+    }
+
+    /**
+     * set hid_device* handle
+    */
+    void getHandle(hid_device * handle){
+        ROS_INFO("sethandle");
+        this->handle = handle;
+    }
+
 
     /**
      * setPollingQueue
@@ -196,7 +239,7 @@ class SimpleComsDevice {
      void writeFloats(int id, std::vector<Complex> values, bool polling) ;
     
     
-     std::vector<double> readFloats(int id) ;
+     std::vector<float> readFloats(int id) ;
     
     //void readFloats(int id, std::vector<double> values) ;
     

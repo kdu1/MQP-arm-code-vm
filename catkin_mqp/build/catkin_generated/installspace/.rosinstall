@@ -1,2 +1,2 @@
 - setup-file:
-    local-name: /home/vboxuser/catkin_mqp/install/setup.sh
+    local-name: /home/vboxuser/MQP-arm-code-vm/catkin_mqp/install/setup.sh

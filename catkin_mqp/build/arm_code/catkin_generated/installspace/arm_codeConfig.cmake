@@ -67,14 +67,14 @@ set(arm_code_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(arm_code_SOURCE_PREFIX /home/vboxuser/catkin_mqp/src/arm_code)
-  set(arm_code_DEVEL_PREFIX /home/vboxuser/catkin_mqp/devel)
+  set(arm_code_SOURCE_PREFIX /home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code)
+  set(arm_code_DEVEL_PREFIX /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel)
   set(arm_code_INSTALL_PREFIX "")
   set(arm_code_PREFIX ${arm_code_DEVEL_PREFIX})
 else()
   set(arm_code_SOURCE_PREFIX "")
   set(arm_code_DEVEL_PREFIX "")
-  set(arm_code_INSTALL_PREFIX /home/vboxuser/catkin_mqp/install)
+  set(arm_code_INSTALL_PREFIX /home/vboxuser/MQP-arm-code-vm/catkin_mqp/install)
   set(arm_code_PREFIX ${arm_code_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/vboxuser/catkin_mqp/install/lib;/home/vboxuser/catkin_ws/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/vboxuser/MQP-arm-code-vm/catkin_mqp/install/lib;/home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib;/home/vboxuser/catkin_ws/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

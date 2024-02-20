@@ -136,7 +136,7 @@ class Robot{
      * read using hidapi
      * reads position data from each motor
     */
-    std::vector<double> read(unsigned char reportID);
+    std::vector<float> read(unsigned char reportID);
 
     /**
      * moves the motors to the positions specified by the input array,

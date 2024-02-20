@@ -114,7 +114,7 @@ class Robot{
     */
     void callbackPosCommand(const std_msgs::Int32 &msg)
     {
-        ROS_INFO("callbackPosCommand: %d", msg.data);
+        ROS_INFO("callbackPosCommand: %ld", msg.data);
         //servo_jp(msg); //TODO: commenting out for now
 
     }
@@ -171,8 +171,8 @@ class Robot{
 
             //jd size check
             if(jd.size() < 2 || jd[0].size() < 3){
-                ROS_INFO("jd size: %d", jd.size());
-                ROS_INFO("jd[0] size: %d", jd[0].size());
+                ROS_INFO("jd size: %ld", jd.size());
+                ROS_INFO("jd[0] size: %ld", jd[0].size());
                 throw std::runtime_error("Error: measured_js output is wrong size");
             }
             
@@ -197,7 +197,7 @@ class Robot{
 
             //D size check
             /*if(D.size() < 1 || D[0].size() < Dcolsize){
-                ROS_ERROR("D size: %d", D[0].size());
+                ROS_ERROR("D size: %ld", D[0].size());
                 throw std::runtime_error("Error: D is wrong size");
             }
 
@@ -211,7 +211,7 @@ class Robot{
 
             ROS_INFO("D values first init:");
             for(int k = 0; k < 8; k++){
-                printf("D[0][%d]: %f\n", k, D[0][k].real());
+                printf("D[0][%ld]: %f\n", k, D[0][k].real());
             };*/
             
             
@@ -233,7 +233,7 @@ class Robot{
                 
                 //another size check for detCheckGet
                 if(detCheckGet.size() !=2 || detCheckGet[0].size() != 3){
-                    ROS_ERROR("detCheckGet size: %d, %d\n", detCheckGet.size(), detCheckGet[0].size());
+                    ROS_ERROR("detCheckGet size: %ld, %ld\n", detCheckGet.size(), detCheckGet[0].size());
                     throw std::runtime_error("Error: measured_js output wrong size");
                 }
                 //what it returns
@@ -252,8 +252,8 @@ class Robot{
 
                 //size check jacobv, again
                 if(jacobv.size() != 6, jacobv[0].size() != 3){
-                    ROS_INFO("jacobv size: %d", jacobv.size());
-                    ROS_ERROR("jacobv size: %d", jacobv.size());
+                    ROS_INFO("jacobv size: %ld", jacobv.size());
+                    ROS_ERROR("jacobv size: %ld", jacobv.size());
                     throw std::runtime_error("Error: jacobv wrong size");
                 }
 
@@ -289,7 +289,7 @@ class Robot{
                         //ROS_INFO("case 4");
                         //tc size check
                         if(tc.size() != 12){
-                            ROS_ERROR("tc size: %d", tc.size());
+                            ROS_ERROR("tc size: %ld", tc.size());
                             throw std::runtime_error("Error: tc wrong size");
                         }
                         //tc is a one dimensional representation of a 4x3 array because c++ struggles
@@ -488,12 +488,12 @@ class Robot{
 
     /**
      * reads information, calls readFloats method from SimpleComsDevice
-     * @param reportID he report ID (or (byte) 0x00)
+     * @param reportID the report ID (or (byte) 0x00)
      * @return The number of bytes written, or -1 if an error occurs
     */
     //TODO: pretty sure this should be CArray
-    std::vector<double> read(unsigned char reportID){
-
+    std::vector<float> read(unsigned char reportID){
+        
         //matlab has
         //self.read(1910); 1910 is idOfCommand
         
@@ -548,10 +548,13 @@ class Robot{
         }
 
         std::vector<Complex> packet(15); // creates an empty 15x1 array to write to the robot
-        packet[0] = 0.0; // bypasses interpolation
-        packet[2] = array[0]; // sets first motor's position value to the first value of array 
-        packet[3] = array[1]; // sets second motor's position value to the second value of array
-        packet[4] = array[2]; // sets third motor's position value to the third value of array
+        //TODO: according to the reference this is wrong - see how 0 and 1 are filled here
+        packet[0] = 1848;
+        packet[1] = 10000;//TODO: HARDCODED, making it extra slow just in case
+        packet[2] = 0.0; // bypasses interpolation
+        packet[3] = array[0]; // sets first motor's position value to the first value of array 
+        packet[4] = array[1]; // sets second motor's position value to the second value of array
+        packet[5] = array[2]; // sets third motor's position value to the third value of array
         
         //almost certain this needs to be published to ROS as a JointState
         //Questions:
@@ -569,18 +572,18 @@ class Robot{
         //TODO: limits are hardcoded
         for(int i=0; i < array.size(); i++){
             ROS_INFO("servo_jp %f", reinterpret_cast<float(&)>(array[i]));
-            msg.position.push_back(reinterpret_cast<float(&)>(array[i]));
+            //msg.position.push_back(reinterpret_cast<float(&)>(array[i]));
             //1 will need to convert the complex to float64 - hope there will be no issue with that
             //2 is this sufficient without velocity and effort?
         }
 
-        //TODO: uncomment later
-        //_servo_jp_publisher.publish(msg);
 
         //TODO: change this to return value for gazebo testing, uncomment later
         //TODO: what is the difference between JointState and JointTrajectory
-
+        
+        //TODO:uncomment
         //write(1848, packet); // sends the desired motion command to the robot
+        //set motor setpoints with time: id, mS duration of move, interpolation mode 0=linear 1=sinusoidal, motor 1 target position, motor 2 target position, motor 3 target position
         endpts = array; // sets the Robot's endpoint as the endpoint specified by the input array
     }
 
@@ -593,7 +596,7 @@ class Robot{
 
         //check size of ja
         if(ja.size() != 3){
-            ROS_INFO("ja size: %d", ja.size());
+            ROS_INFO("ja size: %ld", ja.size());
             throw std::runtime_error("Error: jacobian input is wrong size");
         }
 
@@ -619,8 +622,8 @@ class Robot{
 
         //check size of output
         if(J.size() != 6 || J[0].size() != 3){
-            ROS_INFO("jd size: %d", J.size());
-            ROS_INFO("jd[0] size: %d", J[0].size());
+            ROS_INFO("jd size: %ld", J.size());
+            ROS_INFO("jd[0] size: %ld", J[0].size());
             throw std::runtime_error("Error: jacobian input is wrong size");
         }
 
@@ -699,6 +702,7 @@ class Robot{
     /**
      * @param GETPOS, GETVEL bools that determine whether to return the positions, velocity, or both
      * @return the position and/or velocity values of the motors in a 2x3 array. 
+     * It only gets the positions and velocities - is anything else necessary?
     */
     std::vector<CArray> measured_js(bool GETPOS, bool GETVEL) {
         //std::vector<std::vector<Complex>> returnArray(2, std::vector<Complex>(3, std::complex<float>(0.0, 0))); // creates a 2x3 return array
@@ -707,9 +711,18 @@ class Robot{
         ROS_INFO("GETPOS, %d\n", GETPOS);
         ROS_INFO("GETVEL, %d\n", GETVEL);
 
+        /**
+         * This function returns a pointer to a linked list of type
+				struct #hid_device_info, containing information about the HID devices
+				attached to the system,
+				or NULL in the case of failure or if no HID devices present in the system.
+				Call hid_error(NULL) to get the failure reason.
+        */
+        //struct hid_device_info* info = hid_enumerate(0x239A, 0x802c);
+        //ROS_INFO("vid: %d, pid: %d, serial: %ls", info->product_id, info->vendor_id, *info->serial_number);
         //TODO: uncomment read also the initialization 
-        //std::vector<float> posPacket = read(1910);
-        std::vector<float> posPacket = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        std::vector<float> posPacket = read(1910); //get positions and setpoint: number of motors, motor 1 setpoint, motor 1 position, motor 2 setpoint, motor 2 position, motor 3 setpoint, motor 3 position
+        //std::vector<float> posPacket = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         CArray retPos(3);//init to right size so output size is consistent
         CArray retVel(3); 
 
@@ -735,8 +748,10 @@ class Robot{
         }
         //velocity
         //TODO: uncomment the read
-        //std::vector<float> velPacket = read(1822); //TODO: reads the position data from each motor
-        std::vector<float> velPacket = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        std::vector<float> velPacket = read(1822); //get velocity data: motor 1 velocity mode setpoint, motor 1 velocity, motor 1 computed effort
+                                                    //motor 2 velocity mode setpoint, motor 2 velocity, motor 2 computed effort
+                                                    //motor 3 velocity mode setpoint, motor 3 velocity, motor 3 computed effort
+        //std::vector<float> velPacket = {0, 0, 0, 0, 0, 0, 0, 0, 0};
         if (GETVEL) { // if GETVEL is true
             ROS_INFO("getvel");
             try{
@@ -760,9 +775,9 @@ class Robot{
 
         //check that return size is correct
         if(ret.size() < 2 || ret[0].size() < 3 || ret[1].size() < 3){
-            ROS_INFO("ret size: %d", ret.size());
-            ROS_INFO("retPos size: %d", ret[0].size());
-            ROS_INFO("retVel size: %d", ret[1].size());
+            ROS_INFO("ret size: %ld", ret.size());
+            ROS_INFO("retPos size: %ld", ret[0].size());
+            ROS_INFO("retVel size: %ld", ret[1].size());
             throw std::runtime_error("Error: measured_js output is wrong size");
         }
         return ret; // returns the array of position and velocity values
@@ -825,7 +840,7 @@ class Robot{
         }
         //check if size matches
         if(matrix.size() != size){
-            ROS_ERROR("det matrix size: %d, correct size: %d", matrix.size(), size);
+            ROS_ERROR("det matrix size: %ld, correct size: %ld", matrix.size(), size);
             throw std::runtime_error("Error: matrix wrong size");
 
         }
@@ -908,16 +923,16 @@ class Robot{
         //CArray aset(0,12);
         CArray asetbeforeconj = cubic_traj(traj_time, vi, vf, pi, pf); 
         ROS_INFO("after cubic_traj");
-        ROS_INFO("asetbeforeconj size: %d", asetbeforeconj.size());
+        ROS_INFO("asetbeforeconj size: %ld", asetbeforeconj.size());
         for(int i = 0; i < asetbeforeconj.size(); i++){
-            ROS_INFO("asetbeforeconj[%d]: %f", i, asetbeforeconj[i]);
+            ROS_INFO("asetbeforeconj[%ld]: %f", i, asetbeforeconj[i]);
         }
 
         CArray aset = asetbeforeconj.apply(std::conj); 
 
-        ROS_INFO("aset size: %d", aset.size());
+        ROS_INFO("aset size: %ld", aset.size());
         for(int i = 0; i < aset.size(); i++){
-            ROS_INFO("aset[%d]: %f", i, aset[i]);
+            ROS_INFO("aset[%ld]: %f", i, aset[i]);
         }
 
         ROS_INFO("After cubic_traj");
@@ -1016,7 +1031,8 @@ int main(int argc, char **argv)
     //no idea if it works like this
     std::vector<std::vector<float>> cRed(3, std::vector<float>(3, 0));
     //std::vector<float> desPos = cRed[0]; //why did I do that
-    SimpleComsDevice s;
+    const char* path = "/dev/hidraw1";
+    SimpleComsDevice s(path);
     //init robot
     Robot robot(&nh, &s);
     ROS_INFO("ROS robot is now started...");

@@ -1,4 +1,4 @@
-prefix=/home/vboxuser/catkin_mqp/install
+prefix=/home/vboxuser/MQP-arm-code-vm/catkin_mqp/install
 
 Name: arm_code
 Description: Description of arm_code

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/vboxuser/catkin_mqp/src/arm_code/include/FloatPacketType.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/include/FloatPacketType.h
 vector
 -
 cstdint
@@ -14,7 +14,7 @@ cstdint
 cstring
 -
 
-/home/vboxuser/catkin_mqp/src/arm_code/include/libusb.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/include/libusb.h
 stdint.h
 -
 sys/types.h
@@ -30,7 +30,7 @@ windows.h
 winsock.h
 -
 
-/home/vboxuser/catkin_mqp/src/arm_code/src/Robot.cpp
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/Robot.cpp
 ros/ros.h
 -
 iostream
@@ -50,17 +50,41 @@ cmath
 valarray
 -
 SimpleComsDevice.h
-/home/vboxuser/catkin_mqp/src/arm_code/src/SimpleComsDevice.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/SimpleComsDevice.h
 sensor_msgs/JointState.h
 -
 ik3001.h
-/home/vboxuser/catkin_mqp/src/arm_code/src/ik3001.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/ik3001.h
 cubic_traj.h
-/home/vboxuser/catkin_mqp/src/arm_code/src/cubic_traj.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/cubic_traj.h
 
-/home/vboxuser/catkin_mqp/src/arm_code/src/SimpleComsDevice.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/SimpleComsDevice.cpp
+vector
+-
+unordered_map
+-
+SimpleComsDevice.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/SimpleComsDevice.h
+iostream
+-
+memory
+-
+cassert
+-
+memory
+-
+thread
+-
+complex
+-
+valarray
+-
+
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/SimpleComsDevice.h
+ros/ros.h
+-
 FloatPacketType.h
-/home/vboxuser/catkin_mqp/src/arm_code/src/FloatPacketType.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/FloatPacketType.h
 iostream
 -
 memory
@@ -72,7 +96,7 @@ hidapi/hidapi.h
 libusb.h
 -
 libusb-1.0/libusb.h
-/home/vboxuser/catkin_mqp/src/arm_code/src/libusb-1.0/libusb.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/libusb-1.0/libusb.h
 memory
 -
 thread
@@ -88,7 +112,7 @@ unistd.h
 hidapi_libusb.h
 -
 
-/home/vboxuser/catkin_mqp/src/arm_code/src/cubic_traj.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/cubic_traj.h
 cstddef
 -
 cstdlib
@@ -104,7 +128,7 @@ valarray
 ros/ros.h
 -
 
-/home/vboxuser/catkin_mqp/src/arm_code/src/ik3001.h
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/ik3001.h
 cstddef
 -
 cstdlib
