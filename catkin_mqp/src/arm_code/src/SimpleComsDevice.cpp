@@ -1,6 +1,4 @@
-//WAITWAITWAITIWAIT
-//DOES THE ALREADY WRITTEN ONE ACTUALLY WORK????????
-//DID I WASTE
+
 
 #include <vector>
 #include <unordered_map>
@@ -27,9 +25,9 @@
 #define _USE_MATH_DEFINES
 # define M_PI           3.14159265358979323846  /* pi */
 
-//also in hid.c
-struct hid_device_;
-typedef struct hid_device_ hid_device; /**< opaque hidapi structure */
+
+//struct hid_device_;
+//typedef struct hid_device_ hid_device; /**< opaque hidapi structure */
 
 typedef std::complex<float> Complex;
 typedef std::valarray<Complex> CArray;
@@ -55,9 +53,11 @@ typedef std::valarray<Complex> CArray;
 SimpleComsDevice::SimpleComsDevice(const char* path){
     ROS_INFO("scd constructor");
     SimpleComsDevice::handle = hid_open_path(path);
-    hid_device_info devinfo = handle->enumerate();
+    hid_device_info* devinfo = hid_enumerate(0x239A, 0x802C);
+    //print_device(devinfo);
+    
     print_devices_with_descriptor(devinfo);
-	hid_free_enumeration(devinfo);
+    hid_free_enumeration(devinfo);
 }
 
 
@@ -73,6 +73,74 @@ bool SimpleComsDevice::validHandle(hid_device * handle){
         return 1;
     }
 }
+
+/**
+ * print hid_device_info
+ * @param cur_dev_ hid_device_info* struct
+*/
+void SimpleComsDevice::print_device(struct hid_device_info *cur_dev) {
+	ROS_INFO("Device Found\n  type: %04hx %04hx\n  path: %s\n  serial_number: %ls", cur_dev->vendor_id, cur_dev->product_id, cur_dev->path, cur_dev->serial_number);
+	ROS_INFO("\n");
+	ROS_INFO("  Manufacturer: %ls\n", cur_dev->manufacturer_string);
+	ROS_INFO("  Product:      %ls\n", cur_dev->product_string);
+	ROS_INFO("  Release:      %hx\n", cur_dev->release_number);
+	ROS_INFO("  Interface:    %d\n",  cur_dev->interface_number);
+	ROS_INFO("  Usage (page): 0x%hx (0x%hx)\n", cur_dev->usage, cur_dev->usage_page);
+	//ROS_INFO("  Bus type: %u (%s)\n", (unsigned)cur_dev->bus_type, hid_bus_name(cur_dev->bus_type));
+	ROS_INFO("\n");
+}
+
+/**
+ * print hid_device_info
+ * @param cur_dev_ hid_device_info* linkedlist
+*/
+void SimpleComsDevice::print_devices_with_descriptor(struct hid_device_info *cur_dev) {
+	for (; cur_dev; cur_dev = cur_dev->next) {
+        //print_hid_report_descriptor_from_device(SimpleComsDevice::handle);
+		print_device(cur_dev);
+		//print_hid_report_descriptor_from_path(cur_dev->path);
+	}
+}
+
+/**
+ * print hid_report_descriptor given path
+ * @param path const char* path to open device
+*/
+/*void SimpleComsDevice::print_hid_report_descriptor_from_path(const char *path) {
+	hid_device *device = hid_open_path(path);
+	if (device) {
+		print_hid_report_descriptor_from_device(device);
+		hid_close(device);
+	}
+	else {
+		printf("  Report Descriptor: Unable to open device by path\n");
+	}
+}*/
+
+/**
+ *  print hid_report_descriptor given hid_device
+ * @param device hid_device* device
+*/
+/*void SimpleComsDevice::print_hid_report_descriptor_from_device(hid_device *device) {
+	unsigned char descriptor[4096];
+	int res = 0;
+
+	printf("  Report Descriptor: ");
+	res = hid_get_report_descriptor(device, descriptor, sizeof(descriptor));
+	if (res < 0) {
+		printf("error getting: %ls", hid_error(device));
+	}
+	else {
+		printf("(%d bytes)", res);
+	}
+	for (int i = 0; i < res; i++) {
+		if (i % 10 == 0) {
+			printf("\n");
+		}
+		printf("0x%02x, ", descriptor[i]);
+	}
+	printf("\n");
+}*/
 
  std::unordered_map<int, std::vector<SimpleComsDevice::Runnable>> events;
     

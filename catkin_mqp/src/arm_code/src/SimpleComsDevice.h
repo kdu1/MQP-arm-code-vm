@@ -52,8 +52,8 @@
 //
 
 //also in hid.c
-struct hid_device_;
-		typedef struct hid_device_ hid_device; /**< opaque hidapi structure */
+//struct hid_device_;
+//typedef struct hid_device_ hid_device; /**< opaque hidapi structure */
 
 typedef std::complex<float> Complex;
 typedef std::valarray<Complex> CArray;
@@ -307,5 +307,30 @@ class SimpleComsDevice {
      * reads position data from each motor
     */
      int read(std::vector<unsigned char> bytes, int milliseconds);
+
+
+     /**
+     * print hid_device_info
+     * @param cur_dev_ hid_device_info* struct
+    */
+    void print_device(struct hid_device_info *cur_dev);
+
+    /**
+     * print hid_device_info
+     * @param cur_dev_ hid_device_info* linkedlist
+    */
+    void print_devices_with_descriptor(struct hid_device_info *cur_dev); 
+
+    /**
+     * print hid_report_descriptor given path
+     * @param path const char* path to open device
+    */
+    void print_hid_report_descriptor_from_path(const char *path);
+
+    /**
+     *  print hid_report_descriptor given hid_device
+     * @param device hid_device* device
+    */
+    void print_hid_report_descriptor_from_device(hid_device *device);
 
 };
