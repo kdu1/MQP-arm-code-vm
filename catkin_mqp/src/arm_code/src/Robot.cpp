@@ -1,10 +1,10 @@
 //Robot.cpp
-#include <ros/ros.h>
-#include <iostream>
+//#include <ros/ros.h>
+//#include "iostream"
 #include <vector>
 #include <thread>
 #include <math.h>
-#include <std_msgs/Int32.h>
+//#include <std_msgs/Int32.h>
 //#include <hidapi/hidapi.h>
 //#include <libusb.h>
 //#include <hidapi_libusb.h>
@@ -16,7 +16,7 @@
 #include <cmath>
 #include <valarray>
 #include "SimpleComsDevice.h"
-#include <sensor_msgs/JointState.h>
+//#include <sensor_msgs/JointState.h>
 #include "ik3001.h"
 #include "cubic_traj.h"
 typedef std::complex<float> Complex;
@@ -79,8 +79,8 @@ class Robot{
         CArray endpts = {std::complex<float>(0, 0), std::complex<float>(0,0), std::complex<float>(0,0)};
         int MAX = 3;
         //SimpleComsDevice a;
-        ros::Subscriber pos_subscriber_; //gonna be honest not really sure what to subscribe to
-        ros::Publisher _servo_jp_publisher;
+        //ros::Subscriber pos_subscriber_;
+        //ros::Publisher _servo_jp_publisher;
         SimpleComsDevice* s;
 
     /**
@@ -89,7 +89,7 @@ class Robot{
      * Calls connect method from SimpleComsDevice
      * TODO: okay seriously what if I fid just send the coordinates through ros and not the hid_write? somehow
     */
-    Robot(ros::NodeHandle *nh, SimpleComsDevice *s){
+    Robot(SimpleComsDevice *s){
         //SimpleComsDevice a;
         //this->a = a;
 
@@ -97,41 +97,33 @@ class Robot{
         s->connect();
 
         //subscribe to and publish a dummy node for testing
-        pos_subscriber_ = nh->subscribe("pos_command", 10, &Robot::callbackPosCommand, this);
+        //pos_subscriber_ = nh->subscribe("pos_command", 10, &Robot::callbackPosCommand, this);
         /*pos_subscriber_ = nh->subscribe(
             "pos_command", 10, &Robot::callbackPosCommand, this);
         _servo_jp_publisher = nh->advertise<sensor_msgs::JointState>("servo_jp", 10);*/
     };
 
     void scddisconnect(){
-        ROS_INFO("Disconnecting...");
+        //ROS_INFO("Disconnecting...");
         s->disconnect();
     }
 
 
-    /**
-     * TODO: temp callback function for testing
-    */
-    void callbackPosCommand(const std_msgs::Int32 &msg)
-    {
-        ROS_INFO("callbackPosCommand: %ld", msg.data);
-        //servo_jp(msg); //TODO: commenting out for now
 
-    }
 
     /**
      * TODO: Callback function get position(?) from ros
     */
     /*void callbackPosCommand(const sensor_msgs::JointState &msg)
     {
-        ROS_INFO("callbackPosCommand");
+        //ROS_INFO("callbackPosCommand");
         std::vector<double> pos = msg.position;
         int possize = pos.size();
         CArray carr(possize);
         //get positions and put them in another array then call servo_jp with contents
         for(int i = 0; i < possize; i++){
             
-            ROS_INFO("%f", pos[i]);
+            //ROS_INFO("%f", pos[i]);
             carr[i] = std::complex<float>(pos[i],0);
         }
         //servo_jp(msg); //TODO: commenting out for now
@@ -148,7 +140,7 @@ class Robot{
     */
     void run_trajectory(bool s, CArray tc, float t) {
 
-        ROS_INFO("run_trajectory");
+        //ROS_INFO("run_trajectory");
         //int Dcolsize = 8;
         //std::vector<std::vector<Complex>> D(8000, std::vector<Complex>(Dcolsize)); //local vector moved on return, maybe that's the problem
 
@@ -163,16 +155,16 @@ class Robot{
             int jpsize = 4;
             int jvsize = 3;
             //creates empty array to store joint position data
-            ROS_INFO("before the initialization");
+            //ROS_INFO("before the initialization");
             
-            ROS_INFO("before measured_js");
+            //ROS_INFO("before measured_js");
             std::vector<CArray> jd = measured_js(true, true); //returns a 2X3 array
-            ROS_INFO("after measured_js");
+            //ROS_INFO("after measured_js");
 
             //jd size check
             if(jd.size() < 2 || jd[0].size() < 3){
-                ROS_INFO("jd size: %ld", jd.size());
-                ROS_INFO("jd[0] size: %ld", jd[0].size());
+                //ROS_INFO("jd size: %ld", jd.size());
+                //ROS_INFO("jd[0] size: %ld", jd[0].size());
                 throw std::runtime_error("Error: measured_js output is wrong size");
             }
             
@@ -222,7 +214,7 @@ class Robot{
             std::chrono::duration<double> elapsed = end - start;
             std::cout << "Elapsed time: " << elapsed.count() << " s\n";
             double currTLoop = elapsed.count();
-            ROS_INFO("%lf", currTLoop);
+            //ROS_INFO("%lf", currTLoop);
 
             //TODO: commenting out while loop to see what one recursion is
             while (currTLoop < t) {
@@ -233,7 +225,7 @@ class Robot{
                 
                 //another size check for detCheckGet
                 if(detCheckGet.size() !=2 || detCheckGet[0].size() != 3){
-                    ROS_ERROR("detCheckGet size: %ld, %ld\n", detCheckGet.size(), detCheckGet[0].size());
+                    //ROS_ERROR("detCheckGet size: %ld, %ld\n", detCheckGet.size(), detCheckGet[0].size());
                     throw std::runtime_error("Error: measured_js output wrong size");
                 }
                 //what it returns
@@ -243,7 +235,7 @@ class Robot{
                     }
                 }
 
-                ROS_INFO("currTLoop %f", currTLoop);
+                //ROS_INFO("currTLoop %f", currTLoop);
                 CArray detCheck = detCheckGet[0]; //row 1 ?
 
                 //ROS_INFO("Before jacob");
@@ -252,8 +244,8 @@ class Robot{
 
                 //size check jacobv, again
                 if(jacobv.size() != 6, jacobv[0].size() != 3){
-                    ROS_INFO("jacobv size: %ld", jacobv.size());
-                    ROS_ERROR("jacobv size: %ld", jacobv.size());
+                    //ROS_INFO("jacobv size: %ld", jacobv.size());
+                    //ROS_ERROR("jacobv size: %ld", jacobv.size());
                     throw std::runtime_error("Error: jacobv wrong size");
                 }
 
@@ -266,9 +258,9 @@ class Robot{
                     }
                 }
                 //jacobv = {jacobv[0], jacobv[1], jacobv[2]};
-                //ROS_INFO("Before det");
+                ////ROS_INFO("Before det");
                 Complex DetJv = det(jacobvtp,3);
-                ROS_INFO("After det");
+                //ROS_INFO("After det");
 
                 // checks for when the arm is close to reaching singularity
                 //Complex diff = DetJv - std::complex<float>(1.1, 0);
@@ -278,7 +270,7 @@ class Robot{
                 //update clock
                 end = std::chrono::high_resolution_clock::now();
                 elapsed = end - start;
-                ROS_INFO("elapsed %lf", elapsed.count());
+                //ROS_INFO("elapsed %lf", elapsed.count());
                 Complex curT = elapsed.count(); //TODO: this could very much be causing a lot of errors
             
                 //TODO: not sure if it maybe be that the next calls to aset actually replace the 2nd and 3rd row respectively but I'm going with this for now
@@ -289,7 +281,7 @@ class Robot{
                         //ROS_INFO("case 4");
                         //tc size check
                         if(tc.size() != 12){
-                            ROS_ERROR("tc size: %ld", tc.size());
+                            //ROS_ERROR("tc size: %ld", tc.size());
                             throw std::runtime_error("Error: tc wrong size");
                         }
                         //tc is a one dimensional representation of a 4x3 array because c++ struggles
@@ -314,20 +306,20 @@ class Robot{
                 //the example I'm using creates the publishers under joint and task space, same format of calling servojp
                 //joint space
                 if (s == true) {
-                    ROS_INFO("joint space, before servo_jp");
+                    //ROS_INFO("joint space, before servo_jp");
                     this->servo_jp({a1, a2, a3});//angles to get to desired position
                 }
                 //task space
                 else {
                     //TODO: also seems to require there be an extra TransformStamped message be sent for the task space. Is the ik3001 enough for that? Or do we still need to do that
                     //A = self.ik30();
-                    ROS_INFO("task space");
+                    //ROS_INFO("task space");
                     Complex angles [3] = {a1, a2, a3}; //angles to get to desired position
                     CArray A = ik3001(angles); //TODO: just have this be a CArray
 
                     CArray conttrans = A.apply(std::conj);
 
-                    ROS_INFO("before servo_jp");
+                    //ROS_INFO("before servo_jp");
                     this->servo_jp(conttrans);
                 }
                 /*else {
@@ -346,13 +338,13 @@ class Robot{
                 }
 
                 jv = jd[1];
-                ROS_INFO("before init jp[3]: %f", jp[3].real());
+                //ROS_INFO("before init jp[3]: %f", jp[3].real());
                 jp[3] = curT;
-                ROS_INFO("after init jp[3]: %f", jp[3].real());
+                //ROS_INFO("after init jp[3]: %f", jp[3].real());
 
                 //if it reaches size limit
                 if(i >= 8000){
-                    ROS_ERROR("reached size limit");
+                    //ROS_ERROR("reached size limit");
                     throw std::runtime_error("Error: reached size limit");
                 }
 
@@ -380,19 +372,19 @@ class Robot{
                 elapsed = end - start;
                 currTLoop = elapsed.count();
                 //ROS_INFO("currTLoop: %f", currTLoop);
-                ROS_INFO("i: %d", i);
+                //ROS_INFO("i: %d", i);
             }
-            ROS_INFO("after loop");
+            //ROS_INFO("after loop");
             //promlem has to do with D
             //trying to return results in memory error
            /*D.resize(i-1, std::vector<Complex>(Dcolsize)); // cuts D to size and returns it
             D.shrink_to_fit();
-            ROS_INFO("D row: %d col: %d", D.size(), D[0].size());*/
-            ROS_INFO("end of run_trajectory");
+            //ROS_INFO("D row: %d col: %d", D.size(), D[0].size());*/
+            //ROS_INFO("end of run_trajectory");
             //return D; 
         }
         catch (const std::exception& e) {
-            ROS_ERROR(e.what());
+            //ROS_ERROR(e.what());
             throw std::runtime_error(e.what());
         }
     };
@@ -449,13 +441,14 @@ class Robot{
      * @param reportID, values the id of the info to write, pretty sure it's the id in the first byte of the information for calling hid_write, and the values to write
     */
     void write(int id, std::vector<Complex> values){
-        
+        printf("write\n");
+        printf("id: %d\n", id);
         try{
              s->writeFloats(id, values);//Then convert it to floats cause the complex is just floats with twice as big array
             
         }
         catch (const std::exception& e) {
-            ROS_ERROR("Command error, reading too fast\n");
+            //ROS_ERROR("Command error, reading too fast\n");
             throw std::runtime_error("Command error, reading too fast\n");
         }
     }
@@ -492,7 +485,7 @@ class Robot{
      * @return The number of bytes written, or -1 if an error occurs
     */
     //TODO: pretty sure this should be CArray
-    std::vector<float> read(unsigned char reportID){
+    std::vector<float> read(int reportID){
         
         //matlab has
         //self.read(1910); 1910 is idOfCommand
@@ -536,53 +529,32 @@ class Robot{
     /**
      * moves the motors to the positions specified by the input array,
      * without interpolation
-     * TODO: need to set position limits
      * */
     void servo_jp(CArray array) {
-        ROS_INFO("In servo jp");
+        //ROS_INFO("In servo jp");
 
         //check array size
         if(array.size() != 3){
-            ROS_ERROR("servo_jp input size incorrect");
+            //ROS_ERROR("servo_jp input size incorrect");
             throw std::runtime_error("servo_jp input size incorrect");
         }
 
         std::vector<Complex> packet(15); // creates an empty 15x1 array to write to the robot
         //TODO: according to the reference this is wrong - see how 0 and 1 are filled here
-        packet[0] = 1848;
-        packet[1] = 10000;//TODO: HARDCODED, making it extra slow just in case
-        packet[2] = 0.0; // bypasses interpolation
-        packet[3] = array[0]; // sets first motor's position value to the first value of array 
-        packet[4] = array[1]; // sets second motor's position value to the second value of array
-        packet[5] = array[2]; // sets third motor's position value to the third value of array
-        
-        //almost certain this needs to be published to ROS as a JointState
-        //Questions:
-        //do I publish packet? or I think I can just publish array
-        //do I also need to publish endpts?
-        //can I just publish it from here? 
-        //Do I need to publish it continuously? Would it be better to have a new file for the ros stuff?
+        packet[0] = 1848; //ID
+        packet[1] = 10000;//Duration of movement: TODO: HARDCODED, making it extra slow just in case
+        packet[2] = 0.0; // Interpolation mode: 0=linear, 1=sinusoidal; bypasses interpolation
+        packet[3] = array[0]; // Motor 1 target position
+        packet[4] = array[1]; // Motor 2 target position
+        packet[5] = array[2]; // Motor 3 target position
 
-        //alternatively, should I just publish the endpts continuously?
-
-        //publishing array data to ROS
-        sensor_msgs::JointState msg;
-        msg.name ={"x", "y", "z"};
-        
-        //TODO: limits are hardcoded
-        for(int i=0; i < array.size(); i++){
-            ROS_INFO("servo_jp %f", reinterpret_cast<float(&)>(array[i]));
-            //msg.position.push_back(reinterpret_cast<float(&)>(array[i]));
-            //1 will need to convert the complex to float64 - hope there will be no issue with that
-            //2 is this sufficient without velocity and effort?
+        printf("Data to be sent to hid_write:\n");
+        for(int i = 0; i < packet.size(); i++){
+            printf("%f\n", packet[i].real());
         }
-
-
-        //TODO: change this to return value for gazebo testing, uncomment later
-        //TODO: what is the difference between JointState and JointTrajectory
         
         //TODO:uncomment
-        //write(1848, packet); // sends the desired motion command to the robot
+        write(1848, packet); // sends the desired motion command to the robot
         //set motor setpoints with time: id, mS duration of move, interpolation mode 0=linear 1=sinusoidal, motor 1 target position, motor 2 target position, motor 3 target position
         endpts = array; // sets the Robot's endpoint as the endpoint specified by the input array
     }
@@ -592,11 +564,11 @@ class Robot{
     */
     std::vector<std::vector<Complex>> jacob3001(CArray ja) {
 
-        ROS_INFO("jacob3001");
+        //ROS_INFO("jacob3001");
 
         //check size of ja
         if(ja.size() != 3){
-            ROS_INFO("ja size: %ld", ja.size());
+            //ROS_INFO("ja size: %ld", ja.size());
             throw std::runtime_error("Error: jacobian input is wrong size");
         }
 
@@ -604,7 +576,7 @@ class Robot{
         Complex  t2 = ja[1];
         Complex  t3 = ja[2];
 
-        ROS_INFO("jacobian");
+        //ROS_INFO("jacobian");
         std::vector<std::vector<Complex>> J(6, std::vector<Complex>(3));
         //hardcoded Jacobian calculation
         J = {{(std::complex<float>(5,0)*M_PI*sin((M_PI*t1)/std::complex<float>(180, 0))*sin((M_PI*(t2 - std::complex<float>(90,0)))/std::complex<float>(180, 0))*sin((M_PI*(t3 + std::complex<float>(90,0)))/std::complex<float>(180, 0)))/std::complex<float>(9,0) - (std::complex<float>(5,0)*M_PI*std::complex<float>(sin((M_PI*t1)/std::complex<float>(180, 0)))*std::complex<float>(cos((M_PI*(t2 - std::complex<float>(90,0)))/std::complex<float>(180, 0)))*std::complex<float>(cos((M_PI*(t3 + std::complex<float>(90,0)))/std::complex<float>(180, 0))))/std::complex<float>(9,0) - (std::complex<float>(5,0)*M_PI*sin((M_PI*t1)/std::complex<float>(180, 0))*cos((M_PI*(t2 - std::complex<float>(90,0)))/std::complex<float>(180, 0)))/std::complex<float>(9,0), 
@@ -622,8 +594,8 @@ class Robot{
 
         //check size of output
         if(J.size() != 6 || J[0].size() != 3){
-            ROS_INFO("jd size: %ld", J.size());
-            ROS_INFO("jd[0] size: %ld", J[0].size());
+            ////ROS_INFO("jd size: %ld", J.size());
+            //ROS_INFO("jd[0] size: %ld", J[0].size());
             throw std::runtime_error("Error: jacobian input is wrong size");
         }
 
@@ -632,7 +604,7 @@ class Robot{
 
         
         /**
-         * TODO: okay this looks wrong and now I'm worried the other generated stuff is wrong
+         * wrong
          * calculates 6x3 manipulator Jacobian from 3x1 array of joint angles
         */
        /*
@@ -707,9 +679,9 @@ class Robot{
     std::vector<CArray> measured_js(bool GETPOS, bool GETVEL) {
         //std::vector<std::vector<Complex>> returnArray(2, std::vector<Complex>(3, std::complex<float>(0.0, 0))); // creates a 2x3 return array
         //position
-        ROS_INFO("measured_js");
+        /*ROS_INFO("measured_js");
         ROS_INFO("GETPOS, %d\n", GETPOS);
-        ROS_INFO("GETVEL, %d\n", GETVEL);
+        ROS_INFO("GETVEL, %d\n", GETVEL);*/
 
         /**
          * This function returns a pointer to a linked list of type
@@ -720,40 +692,44 @@ class Robot{
         */
         //struct hid_device_info* info = hid_enumerate(0x239A, 0x802c);
         //ROS_INFO("vid: %d, pid: %d, serial: %ls", info->product_id, info->vendor_id, *info->serial_number);
-        //TODO: uncomment read also the initialization 
-        std::vector<float> posPacket = read(1910); //get positions and setpoint: number of motors, motor 1 setpoint, motor 1 position, motor 2 setpoint, motor 2 position, motor 3 setpoint, motor 3 position
+        
+        //unsigned char posPacketReportID = '1910';
+        int posPacketReportID = 1910; //TODO: datatype int or unsigned char?
+        std::vector<float> posPacket = read(posPacketReportID); //get positions and setpoint: number of motors, motor 1 setpoint, motor 1 position, motor 2 setpoint, motor 2 position, motor 3 setpoint, motor 3 position
         //std::vector<float> posPacket = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         CArray retPos(3);//init to right size so output size is consistent
         CArray retVel(3); 
 
 
         if (GETPOS) { // if GETPOS is true
-            ROS_INFO("getpos");
+            //ROS_INFO("getpos");
             try {
                 retPos[0] = Complex((float)posPacket[2]); // gets the position of the first motor
                 retPos[1] = Complex((float)posPacket[4]); // gets the position of the second motor
                 retPos[2] = Complex((float)posPacket[6]); // gets the position of the third motor
                 //returnArray[0] = {pos1, pos2, pos3}; // sets the top row of the return array to the position values
 
-                ROS_INFO("return stuff");
+                //ROS_INFO("return stuff");
                 //std::vector<Complex> returnArray1 = {pos1, pos2, pos3};
                 //CArray retPosnew ( returnArray1.data(), returnArray1.size() ); //convert it to a CArray so it's easier to do the conjugate transpose later
                 //retPos = retPosnew;
             }
             catch(const std::exception& e){
                 //ROS_INFO(e);
-                ROS_ERROR("error");
+                //ROS_ERROR("error");
+                //TODO
             }
             
         }
         //velocity
         //TODO: uncomment the read
-        std::vector<float> velPacket = read(1822); //get velocity data: motor 1 velocity mode setpoint, motor 1 velocity, motor 1 computed effort
+        unsigned char velPacketReportID = '1822';
+        std::vector<float> velPacket = read(velPacketReportID); //get velocity data: motor 1 velocity mode setpoint, motor 1 velocity, motor 1 computed effort
                                                     //motor 2 velocity mode setpoint, motor 2 velocity, motor 2 computed effort
                                                     //motor 3 velocity mode setpoint, motor 3 velocity, motor 3 computed effort
         //std::vector<float> velPacket = {0, 0, 0, 0, 0, 0, 0, 0, 0};
         if (GETVEL) { // if GETVEL is true
-            ROS_INFO("getvel");
+            //ROS_INFO("getvel");
             try{
             //if(velPacket.size() >= ) {
                 retVel[0] = Complex((float)velPacket[2]); // gets the velocity of the first motor
@@ -766,18 +742,18 @@ class Robot{
                 //ROS_INFO("retVel.size: row %d col %d", retVel.size(), retVel[0].size());
             }
             catch(const std::exception& e){
-                ROS_ERROR("error");
+                //ROS_ERROR("error");
             }
         }
 
-        ROS_INFO("ret");
+        //ROS_INFO("ret");
         std::vector<CArray> ret = {retPos, retVel}; //the output of this is an vector of CArrays
 
         //check that return size is correct
         if(ret.size() < 2 || ret[0].size() < 3 || ret[1].size() < 3){
-            ROS_INFO("ret size: %ld", ret.size());
-            ROS_INFO("retPos size: %ld", ret[0].size());
-            ROS_INFO("retVel size: %ld", ret[1].size());
+            //ROS_INFO("ret size: %ld", ret.size());
+            //ROS_INFO("retPos size: %ld", ret[0].size());
+            //ROS_INFO("retVel size: %ld", ret[1].size());
             throw std::runtime_error("Error: measured_js output is wrong size");
         }
         return ret; // returns the array of position and velocity values
@@ -832,7 +808,7 @@ class Robot{
     Complex det(std::vector<std::vector<Complex>> matrix, int size)
     {
         //det input from inside function
-        ROS_INFO("det input from inside function");
+        //ROS_INFO("det input from inside function");
         for(int k = 0; k < matrix.size(); k++){
             for(int l=0; l < matrix[k].size(); l++){
                 printf("matrix[%d][%d]: %f\n", k, l, matrix[k][l].real());
@@ -840,7 +816,7 @@ class Robot{
         }
         //check if size matches
         if(matrix.size() != size){
-            ROS_ERROR("det matrix size: %ld, correct size: %ld", matrix.size(), size);
+            //ROS_ERROR("det matrix size: %ld, correct size: %ld", matrix.size(), size);
             throw std::runtime_error("Error: matrix wrong size");
 
         }
@@ -905,7 +881,7 @@ class Robot{
     */
     void pickAndPlace(float xi, float yi, float zi, int color) {
 
-        ROS_INFO("pickAndPlace");
+        //ROS_INFO("pickAndPlace");
         float traj_time = 3.0;
         float tj2 = 1.0;
 
@@ -922,25 +898,25 @@ class Robot{
         //CArray aset = cubic_traj(traj_time, {0, 0, 0}, {0, 0, 0}, {100,0,195}, {xi,yi,(zi+30)}).apply(std::conj); 
         //CArray aset(0,12);
         CArray asetbeforeconj = cubic_traj(traj_time, vi, vf, pi, pf); 
-        ROS_INFO("after cubic_traj");
-        ROS_INFO("asetbeforeconj size: %ld", asetbeforeconj.size());
+        //ROS_INFO("after cubic_traj");
+        //ROS_INFO("asetbeforeconj size: %ld", asetbeforeconj.size());
         for(int i = 0; i < asetbeforeconj.size(); i++){
-            ROS_INFO("asetbeforeconj[%ld]: %f", i, asetbeforeconj[i]);
+            //ROS_INFO("asetbeforeconj[%ld]: %f", i, asetbeforeconj[i]);
         }
 
         CArray aset = asetbeforeconj.apply(std::conj); 
 
-        ROS_INFO("aset size: %ld", aset.size());
+        //ROS_INFO("aset size: %ld", aset.size());
         for(int i = 0; i < aset.size(); i++){
-            ROS_INFO("aset[%ld]: %f", i, aset[i]);
+            //ROS_INFO("aset[%ld]: %f", i, aset[i]);
         }
 
-        ROS_INFO("After cubic_traj");
+        //ROS_INFO("After cubic_traj");
 
         //may not need to return anything
         //std::vector<std::vector<Complex>> D1 = run_trajectory(false, aset, traj_time);
         run_trajectory(false, aset, traj_time);
-        ROS_INFO("after run_trajectory 1");
+        //ROS_INFO("after run_trajectory 1");
 
        vi = {0, 0, 0};
         vf = {0, 0, 0};
@@ -949,7 +925,7 @@ class Robot{
         CArray aset2 = cubic_traj(traj_time, vi, vf, pi, pf).apply(std::conj);
         //std::vector<std::vector<Complex>> D1_2 = run_trajectory(false, aset2, traj_time);
         run_trajectory(false, aset2, traj_time);
-        ROS_INFO("after run_trajectory 2");
+        //ROS_INFO("after run_trajectory 2");
         //closeGripper(); //TODO: not using gripper so I'm guessing can comment it out
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -960,7 +936,7 @@ class Robot{
         CArray aset3 = cubic_traj(tj2, vi, vf, pi, pf).apply(std::conj);
         //std::vector<std::vector<Complex>> D1_3 = run_trajectory(false, aset3, tj2);
         run_trajectory(false, aset3, tj2);
-         ROS_INFO("after run_trajectory 3");
+         //ROS_INFO("after run_trajectory 3");
 
         vi = {0, 0, 0};
         vf = {0, 0, 0};
@@ -969,12 +945,12 @@ class Robot{
         CArray aset4 = cubic_traj(traj_time, vi, vf, pi, pf).apply(std::conj);
         //std::vector<std::vector<Complex>> D1_4 = run_trajectory(false, aset4, traj_time);
         run_trajectory(false, aset4, traj_time);
-         ROS_INFO("after run_trajectory 4");
+         //ROS_INFO("after run_trajectory 4");
     }
 
     //need to exit
     void stop(){
-        ROS_INFO("Stopping...");
+        //ROS_INFO("Stopping...");
          s->disconnectDeviceImp();
     }
 
@@ -1015,12 +991,13 @@ class Traj_Planner{
 /**
  * main ROS function
  * Starts ros, calls servo_jp and pickAndPlace to move arm
+ * TODO: snap ros stuff?
 */
 int main(int argc, char **argv)
 {
     
-    ros::init(argc, argv, "arm_code");
-    ros::NodeHandle nh;
+    //ros::init(argc, argv, "arm_code");
+    //ros::NodeHandle nh;
 
     //ros::AsyncSpinner spinner(4);
     //spinner.start();
@@ -1029,28 +1006,30 @@ int main(int argc, char **argv)
     
     //do the hw5 stuff here
     //no idea if it works like this
+    printf("in main\n");
     std::vector<std::vector<float>> cRed(3, std::vector<float>(3, 0));
     //std::vector<float> desPos = cRed[0]; //why did I do that
     const char* path = "/dev/hidraw1";
     SimpleComsDevice s(path);
     //init robot
-    Robot robot(&nh, &s);
-    ROS_INFO("ROS robot is now started...");
+    //Robot robot(&nh, &s);
+    Robot robot(&s);
+    //ROS_INFO("ROS robot is now started...");
 
     //move arm
     //TODO: HARDCODED these
     float x = 0;//desPos[0];
     float y = 1;//desPos[1];
     float z = 0;//desPos[2];
-    //CArray in = {std::complex<float>(0,0), std::complex<float>(0,0), std::complex<float>(0,0)};
-    //robot.servo_jp(in);
+    CArray in = {std::complex<float>(0,0), std::complex<float>(0,0), std::complex<float>(0,0)};
+    robot.servo_jp(in);
     //std::this_thread::sleep_for(std::chrono::seconds(1));
-    robot.pickAndPlace(x, y, z, (float)1.0); //test simple servo jp before doing this
+    //robot.pickAndPlace(x, y, z, (float)1.0); //test simple servo jp before doing this
 
-    ROS_INFO("Before spin");
+    //ROS_INFO("Before spin");
 
     //ros::spinOnce();
-    ros::Rate r(10); // 10 hz
+    /*ros::Rate r(10); // 10 hz
     while (ros::ok())
     {
        ros::spinOnce();
@@ -1061,8 +1040,6 @@ int main(int argc, char **argv)
     robot.scddisconnect();
     ROS_INFO("After disconnect");
     ros::waitForShutdown();
-    robot.stop();
-    //one thing I don't really understand is how write works while we're doing both write and sending information through ros
-    //an example I found had both
-    //but does it mean we don't need to subscribe to anything?
+    robot.stop();*/
+    //TODO: FUTURE CASE just use ROS instead of SimplePacketComs, Hidapi
 }

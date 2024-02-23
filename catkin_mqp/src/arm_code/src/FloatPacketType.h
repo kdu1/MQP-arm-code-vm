@@ -1,6 +1,7 @@
 #include <vector>
 #include <cstdint> 
 #include <cstring>
+#include <stdio.h>
 
 //every PacketType will just be FloatPacketType
 class FloatPacketType{
@@ -12,8 +13,8 @@ class FloatPacketType{
         int numberOfBytesPerValue = 4;
   
     public:
-        std::vector<double> downstream;
-        std::vector<double> upstream;
+        std::vector<float> downstream;
+        std::vector<float> upstream;
         bool oneShotMode = false;
         bool oneShotDone = false;
         int idOfCommand = 0;
@@ -26,25 +27,25 @@ class FloatPacketType{
 
     FloatPacketType(int id, int size);
     
-    std::vector<double> returnValues;
+    std::vector<float> returnValues;
   
     std::vector<unsigned char> message;
 
-    std::vector<double> getUpstream();
+    std::vector<float> getUpstream();
 
-    void setUpstream(std::vector<double> upstream);
+    void setUpstream(std::vector<float> upstream);
 
-    std::vector<double> getDownstream();
+    std::vector<float> getDownstream();
 
-    void setDownstream(std::vector<double> downstream);
+    void setDownstream(std::vector<float> downstream);
 
-    std::vector<double> parse(std::vector<unsigned char> bytes);
+    std::vector<float> parse(std::vector<unsigned char> bytes);
 
     int toInt(unsigned char byteValue);
 
     void writeId(int idOfCommand, std::vector<unsigned char> bytes);
 
-    std::vector<unsigned char> command(int idOfCommand, std::vector<double> values);
+    std::vector<unsigned char> command(int idOfCommand, std::vector<float> values);
 
     static int getId(std::vector<unsigned char>);
 

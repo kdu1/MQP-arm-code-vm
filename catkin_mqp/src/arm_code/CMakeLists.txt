@@ -105,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES arm_code
+  LIBRARIES arm_code hidapi
   CATKIN_DEPENDS roscpp rospy std_msgs
   DEPENDS system_lib
 )
@@ -114,10 +114,16 @@ catkin_package(
 ## Build ##
 ###########
 
+#set(HIDAPI_WITH_HIDRAW ON)
+#set(CMAKE_FRAMEWORK ON)
+# # and keep everything else to their defaults
+#add_subdirectory(hidapi)
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  hidapi/hidapi
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -140,7 +146,9 @@ add_executable(arm_code src/Robot.cpp
 			 src/FloatPacketType.cpp
        src/cubic_traj.cpp
        src/rt_nonfinite.cpp
-       src/ik3001.cpp)
+       src/ik3001.cpp
+       #hidapi/linux/hid.c
+       )
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,7 +162,7 @@ add_executable(arm_code src/Robot.cpp
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-  hidapi-libusb
+   hidapi-libusb
    ${catkin_LIBRARIES}
 )
 

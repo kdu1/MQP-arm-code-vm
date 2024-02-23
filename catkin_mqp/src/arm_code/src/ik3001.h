@@ -17,7 +17,7 @@
 #include <cstdlib>
 #include <complex>
 #include <valarray>
-#include <ros/ros.h>
+//#include <ros/ros.h>
 
 typedef std::complex<float> Complex;
 typedef std::valarray<Complex> CArray;

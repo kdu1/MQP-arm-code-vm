@@ -26,7 +26,7 @@ typedef std::valarray<Complex> CArray;
 
 
 #define _USE_MATH_DEFINES
-# define M_PI           3.14159265358979323846  /* pi */
+//# define M_PI           3.14159265358979323846  /* pi */
 
 //also in hid.c
 //struct hid_device_;
@@ -136,7 +136,7 @@ class Robot{
      * read using hidapi
      * reads position data from each motor
     */
-    std::vector<float> read(unsigned char reportID);
+    std::vector<float> read(int reportID);
 
     /**
      * moves the motors to the positions specified by the input array,

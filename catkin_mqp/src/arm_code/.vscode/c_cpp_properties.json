@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "/home/vboxuser/catkin_ws/devel/include/**",
+                "/opt/ros/noetic/include/**",
+                "/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/include/**",
+                "/home/vboxuser/catkin_ws/src/motor_wrapper/include/**",
+                "/usr/include/**",
+                "${workspaceFolder}/hidapi/hidapi"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}

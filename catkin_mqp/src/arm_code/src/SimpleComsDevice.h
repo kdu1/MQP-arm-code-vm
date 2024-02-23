@@ -1,19 +1,18 @@
 //#include <vector>
 //#include <unordered_map>
 //#include "PacketType.h"
-#include <ros/ros.h>
+//#include <ros/ros.h>
 #include "FloatPacketType.h"
 //#include "Thread.h"
 //#include "Runnable.h" //circular
 
 #include <iostream>
-#include <memory>
 #include <cassert>
 //#include <windows.h>
 //#include <process.h>
 //#include <hidapi.h>
 #include <hidapi/hidapi.h>
-#include <libusb.h>
+//#include <libusb.h>
 #include "libusb-1.0/libusb.h"
 //#include <hidapi/hidapi_libusb.h>
 //#include "hidapi.h"
@@ -27,7 +26,6 @@
 # define M_PI           3.14159265358979323846  /* pi */
 
 
-//maybe this will make hid work
 // Headers needed for sleeping.
 #ifdef _WIN32
 	#include <windows.h>
@@ -72,15 +70,16 @@ typedef std::valarray<Complex> CArray;
 //HIDPacketComs extends this, which calls read + write, which calls hidDevice.read+write, 
 //which calls HidApi.read + write
 //which calls hid_api.read + write
+
+
+
+
 class SimpleComsDevice {
     
     private:
         std::vector<FloatPacketType> pollingQueue;
-        //ok so I got the usb to work but the vid/pid changed?? did the circuitpy stuff break it? or is it fine
         //unsigned short vid = 0x16c0;
         //unsigned short pid = 0x0486;
-        unsigned short vid = 0x239A;
-        unsigned short pid = 0x802c;
         //wchar_t serial[1024];
         //std::wcsncpy(serial, L"6E5B9DF04652375320202051413808FF", 1024); //TODO: error with this
 
@@ -88,12 +87,12 @@ class SimpleComsDevice {
 
         //Alternatively:open by path
         const char* path; //= "/dev/hidraw1";
-        hid_device * handle; //= hid_open_path(path);//TODO: error
+        hid_device * handle; //= hid_open_path(path);
 
     public:
     
     // A Functor
-    struct Runnable
+    /*struct Runnable
     {
         Runnable() {  }
     
@@ -107,18 +106,18 @@ class SimpleComsDevice {
                     for (int i = 0; i < pollingQueue.size(); i++) {
                         FloatPacketType pollingPacket = pollingQueue[i];
                         if (pollingPacket.sendOk()){
-                            s.process(pollingPacket); //whys this the part I"m struggling with
+                            s.process(pollingPacket); //?
                         }
                     } 
                 } catch (const std::exception& e) {
                     printf("connect thread exception: ");
-                    printf(e.what());
+                    std::cerr << e.what();
                 } 
                 try {
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 } catch (const std::exception& e1) {
                     printf("connect thread sleep exception: ");
-                    printf(e1.what());
+                    std::cerr << e1.what();
                     s.setConnected(false);
                 } 
             } 
@@ -128,7 +127,7 @@ class SimpleComsDevice {
             return 0;
         };
 
-    };
+    };*/
 
 
     /**
@@ -154,10 +153,10 @@ class SimpleComsDevice {
     
     
     void addPollingPacket(FloatPacketType packet) {
-        ROS_INFO("addPollingPacket");
+        printf("addPollingPacket\n");
         if (!(getPacket((int)packet.idOfCommand) == nullptr)){
-            ROS_ERROR("null");
-            throw("Only one packet of a given ID is allowed to poll. Add an event to recive data"); 
+            printf("Only one packet of a given ID is allowed to poll. Add an event to receive data");
+            throw("Only one packet of a given ID is allowed to poll. Add an event to receive data"); 
         }
         pollingQueue.push_back(packet);
     }
@@ -167,7 +166,7 @@ class SimpleComsDevice {
      * @return pollingQueue
     */
      std::vector<FloatPacketType> getPollingQueue(){
-        ROS_INFO("pollingqueue");
+        //ROS_INFO("pollingqueue");
         return pollingQueue;
     }
 
@@ -176,15 +175,16 @@ class SimpleComsDevice {
      * @return handle
     */
     hid_device * getHandle(){
-        ROS_INFO("gethandle");
+        //ROS_INFO("gethandle");
         return handle;
     }
 
     /**
      * set hid_device* handle
     */
-    void getHandle(hid_device * handle){
-        ROS_INFO("sethandle");
+    void setHandle(hid_device * handle){
+        //ROS_INFO("sethandle");
+        printf("sethandle\n");
         this->handle = handle;
     }
 
@@ -332,5 +332,45 @@ class SimpleComsDevice {
      * @param device hid_device* device
     */
     void print_hid_report_descriptor_from_device(hid_device *device);
+
+};
+
+ // A Functor
+class Runnable
+{   private:
+        SimpleComsDevice* scd;
+    public:
+        Runnable(SimpleComsDevice* s) : scd(s){  }
+
+        // This operator overloading enables calling
+        // operator function () on objects of increment
+        //how do I get the a
+        int operator () (SimpleComsDevice s) const {
+            while (s.getConnected()) {
+                try {
+                    std::vector<FloatPacketType> pollingQueue = s.getPollingQueue();
+                    for (int i = 0; i < pollingQueue.size(); i++) {
+                        FloatPacketType pollingPacket = pollingQueue[i];
+                        if (pollingPacket.sendOk()){
+                            s.process(pollingPacket); //?
+                        }
+                    } 
+                } catch (const std::exception& e) {
+                    printf("connect thread exception: ");
+                    std::cerr << e.what();
+                } 
+                try {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                } catch (const std::exception& e1) {
+                    printf("connect thread sleep exception: ");
+                    std::cerr << e1.what();
+                    s.setConnected(false);
+                } 
+            } 
+        
+            s.disconnectDeviceImp();
+            printf("SimplePacketComs disconnect");
+            return 0;
+        };
 
 };

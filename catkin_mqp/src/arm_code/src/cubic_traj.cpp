@@ -30,7 +30,7 @@
 // Function Definitions
 static float rt_powd_snf(float u0, float u1)
 {
-  ROS_INFO("rt_powd_snf");
+  //ROS_INFO("rt_powd_snf");
   float y;
   if (std::isnan(u0) || std::isnan(u1)) {
     y = rtNaN;
@@ -85,20 +85,20 @@ static float rt_powd_snf(float u0, float u1)
 
 CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::vector<float> pi, std::vector<float> pf)
 {
-  ROS_INFO("cubic_traj");
-  ROS_INFO("pf[0]: %f", pf[0]);
-  ROS_INFO("pf[1]: %f", pf[1]);
-  ROS_INFO("pf[2]: %f", pf[2]);
+  //ROS_INFO("cubic_traj");
+  //ROS_INFO("pf[0]: %f", pf[0]);
+  //ROS_INFO("pf[1]: %f", pf[1]);
+  //ROS_INFO("pf[2]: %f", pf[2]);
 
   //input size check
   if(vi.size() != 3 || vf.size() != 3 || pi.size() != 3 || pf.size() != 3){
-      ROS_ERROR("Error: cubic_traj input is wrong size");
+      //ROS_ERROR("Error: cubic_traj input is wrong size");
       throw std::runtime_error("Error: cubic_traj input is wrong size");
       
   }
 
   //trying to see what's in the input vectors
-  ROS_INFO("tf: %f", tf);
+  //ROS_INFO("tf: %f", tf);
   /*for(int i = 0; i < 3; i++){
     ROS_INFO("vi[%d]: %f", i, vi[i]);
     ROS_INFO("vf[%d]: %f", i, vf[i]);
@@ -132,15 +132,15 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
   smax = tf * tf;
   A[10] = smax;
   A[14] = rt_powd_snf(tf, 3.0);
-  ROS_INFO("After rt_powd_snf");
+  //ROS_INFO("After rt_powd_snf");
   A[3] = 0.0;
   A[7] = 1.0;
   A[11] = 2.0 * tf;
   A[15] = 3.0 * smax;
-  ROS_INFO("before CT");
-  ROS_INFO("size of pi:%d", pi.size());
+  //ROS_INFO("before CT");
+  //ROS_INFO("size of pi:%d", pi.size());
   //fill ct with all the values in the correct order
-  ROS_INFO("%f", pi[0]);
+  //ROS_INFO("%f", pi[0]);
   CT.push_back(pi[0]);
   CT.push_back(vi[0]);
   CT.push_back(pf[0]);
@@ -155,17 +155,17 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
   CT.push_back(vf[2]);
 
   for(int i= 0; i < CT.size(); i++){
-      ROS_INFO("Initial CT at %d: %f", i, CT[i]);
+      //ROS_INFO("Initial CT at %d: %f", i, CT[i]);
   }
   
-  ROS_INFO("before ipiv");
+  //ROS_INFO("before ipiv");
   ipiv[0] = 1;
   ipiv[1] = 2;
   ipiv[2] = 3;
   ipiv[3] = 4;
-  ROS_INFO("before for loop");
+  //ROS_INFO("before for loop");
   for (int j = 0; j < 3; j++) {
-    ROS_INFO("j = %d", j);
+    //ROS_INFO("j = %d", j);
     int b_tmp;
     int mmj_tmp;
     signed char i2;
@@ -174,18 +174,18 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
     jp1j = b_tmp + 2;
     jA = 4 - j;
     jBcol = 0;
-    ROS_INFO("A[%d]", b_tmp);
+    //ROS_INFO("A[%d]", b_tmp);
     smax = std::abs(A[b_tmp]);
     for (int k{2}; k <= jA; k++) {
       float s;
-      ROS_INFO("A[%d]", (b_tmp + k) - 1);
+      //ROS_INFO("A[%d]", (b_tmp + k) - 1);
       s = std::abs(A[(b_tmp + k) - 1]);
       if (s > smax) {
         jBcol = k - 1;
         smax = s;
       }
     }
-    ROS_INFO("A[%d]", b_tmp + jBcol);
+    //ROS_INFO("A[%d]", b_tmp + jBcol);
     if (A[b_tmp + jBcol] != 0.0) {
       if (jBcol != 0) {
         jA = j + jBcol;
@@ -205,8 +205,8 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
       }
       i = (b_tmp - j) + 4;
       for (int b_i{jp1j}; b_i <= i; b_i++) {
-        ROS_INFO("A[%d]", b_i - 1);
-        ROS_INFO("A[%d]", b_tmp);
+        //ROS_INFO("A[%d]", b_i - 1);
+        //ROS_INFO("A[%d]", b_tmp);
         A[b_i - 1] /= A[b_tmp];
       }
     }
@@ -218,8 +218,8 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
         i = jA + 6;
         i1 = (jA - j) + 8;
         for (jp1j = i; jp1j <= i1; jp1j++) {
-          ROS_INFO("A[%d]", jp1j - 1);
-          ROS_INFO("A[%d]", ((b_tmp + jp1j) - jA) - 5);
+          //ROS_INFO("A[%d]", jp1j - 1);
+          //ROS_INFO("A[%d]", ((b_tmp + jp1j) - jA) - 5);
           A[jp1j - 1] += A[((b_tmp + jp1j) - jA) - 5] * -smax;
         }
       }
@@ -239,7 +239,7 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
       CT[i2 + 7] = smax;
     }
   }
-  ROS_INFO("before next for loop");
+  //ROS_INFO("before next for loop");
   for (int j = 0; j < 3; j++) {
     jBcol = j << 2;
     for (int k{0}; k < 4; k++) {
@@ -249,14 +249,14 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
         i1 = k + 2;
         for (int b_i{i1}; b_i < 5; b_i++) {
           jp1j = (b_i + jBcol) - 1;
-          ROS_INFO("jp1j CT[%d]", (b_i + jBcol) - 1);
-          ROS_INFO("A[%d]", (b_i + jA) - 1);
+          //ROS_INFO("jp1j CT[%d]", (b_i + jBcol) - 1);
+          //ROS_INFO("A[%d]", (b_i + jA) - 1);
           CT[jp1j] -= CT[i] * A[(b_i + jA) - 1];
         }
       }
     }
   }
-  ROS_INFO("why are there like 10 for loops");
+  //ROS_INFO("why are there like 10 for loops");
   for (int j{0}; j < 3; j++) {
     jBcol = j << 2;
     for (int k{3}; k >= 0; k--) {
@@ -267,8 +267,8 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
         CT[i] = smax / A[k + jA];
         for (int b_i{0}; b_i < k; b_i++) {
           jp1j = b_i + jBcol;
-          ROS_INFO("jp1j CT[%d]", (b_i + jBcol));
-          ROS_INFO("A[%d]", b_i + jA);
+          //ROS_INFO("jp1j CT[%d]", (b_i + jBcol));
+          //ROS_INFO("A[%d]", b_i + jA);
           CT[jp1j] -= CT[i] * A[b_i + jA];
         }
       }
@@ -276,12 +276,12 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
   }
 
  
-  ROS_INFO("before convert to complex for loop");
+  //ROS_INFO("before convert to complex for loop");
   //convert to complex
-  ROS_INFO("CT SIZE: %d", CT.size());
-  ROS_INFO("CTcomplex size: %d", CTcomplex.size()); 
+  //ROS_INFO("CT SIZE: %d", CT.size());
+  //ROS_INFO("CTcomplex size: %d", CTcomplex.size()); 
   for(int i= 0; i < CT.size(); i++){
-      ROS_INFO("CT at %d: %f", i, CT[i]);
+      //ROS_INFO("CT at %d: %f", i, CT[i]);
       CTcomplex[i] = Complex(CT[i]);
       //CTcomplex[i] = Complex(*(CT.begin()), 0);//using get first and erase method instead
       //CT.erase(CT.begin());
@@ -299,8 +299,8 @@ CArray cubic_traj(float tf, std::vector<float> vi, std::vector<float> vf, std::v
 
   //output size check
   if(CTcomplex.size() != 12){
-      ROS_INFO("CTcomplex size: %d", CTcomplex.size());
-      ROS_ERROR("Error: cubic_traj output is wrong size");
+      //ROS_INFO("CTcomplex size: %d", CTcomplex.size());
+      //ROS_ERROR("Error: cubic_traj output is wrong size");
       throw std::runtime_error("Error: cubic_traj output is wrong size");
   }
   return CTcomplex;

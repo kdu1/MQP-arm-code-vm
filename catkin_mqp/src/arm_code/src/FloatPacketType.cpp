@@ -1,11 +1,11 @@
-#include <ros/ros.h>
+//#include <ros/ros.h>
 #include <vector>
 #include <cstring>
 #include <cstdint> 
 #include "FloatPacketType.h"
 
-/*std::vector<double> downstream;
-std::vector<double> upstream;
+/*std::vector<float> downstream;
+std::vector<float> upstream;
 bool oneShotMode = false;
 bool oneShotDone = false;
 int numberOfBytesPerValue = 4;
@@ -17,48 +17,47 @@ int numValues = packetSize / 4 - 1;*/
 
 
 
-std::vector<double> returnValues;
+std::vector<float> returnValues;
 
 std::vector<unsigned char> message;
 
 
-std::vector<double> FloatPacketType::getUpstream() {
-    ROS_INFO("getUpstream");
+std::vector<float> FloatPacketType::getUpstream() {
+    //ROS_INFO("getUpstream");
     return upstream;
 }
 
-void FloatPacketType::setUpstream(std::vector<double> upstream) {
+void FloatPacketType::setUpstream(std::vector<float> upstream) {
     upstream = upstream;
 }
 
-std::vector<double> FloatPacketType::getDownstream() {
-    ROS_INFO("getDownstream");
+std::vector<float> FloatPacketType::getDownstream() {
+    ////ROS_INFO("getDownstream");
     return downstream;
 }
 
-void FloatPacketType::setDownstream(std::vector<double> downstream) {
+void FloatPacketType::setDownstream(std::vector<float> downstream) {
     downstream = downstream;
 }
 
 FloatPacketType::FloatPacketType(int id, int size) {
     //super(id)
-    ROS_INFO("FloatPacketType constructor");
+    //ROS_INFO("FloatPacketType constructor");
     packetSize = size;
     numberOfBytesPerValue = 4;
     numValues = packetSize / numberOfBytesPerValue - 4 / numberOfBytesPerValue;
-    std::vector<double> retval(numValues, 0);
+    std::vector<float> retval(numValues, 0);
     returnValues = retval;
     std::vector<unsigned char> msg(packetSize, 0);
     message = msg;
-    std::vector<double> downst(numValues, 0);
+    std::vector<float> downst(numValues, 0);
     setDownstream(downst);
-    std::vector<double> upst(numValues, 0);
+    std::vector<float> upst(numValues, 0);
     setUpstream(upst);
 
-    //...this is already being done?
-    //what was I cooking. commenting out for now
+    //this is already being done
     /*for (int i = 0; i < numValues; i++) 
-        //getDownstream()[i] = 0.0;//TODO: initialize these I guess
+        //getDownstream()[i] = 0.0;
         downstream[i] = 0;
         getUpstream()[i] = 0.0;
     } */
@@ -67,7 +66,7 @@ FloatPacketType::FloatPacketType(int id, int size) {
 /**
  * parses bytes into a vector format that can be used by packets
 */
-std::vector<double> FloatPacketType::parse(std::vector<unsigned char> bytes) {
+std::vector<float> FloatPacketType::parse(std::vector<unsigned char> bytes) {
     for (int i = 0; i < numValues; i++) {
         int baseIndex = 4 * i + 4;
         int bits = toInt(bytes[0 + baseIndex]) | toInt(bytes[1 + baseIndex]) << 8 | toInt(bytes[2 + baseIndex]) << 16 | toInt(bytes[3 + baseIndex]) << 24;
@@ -89,25 +88,48 @@ int FloatPacketType::toInt(unsigned char byteValue) {
  * @param
 */
 void FloatPacketType::writeId(int idOfCommand, std::vector<unsigned char> bytes) {
+    printf("writeId\n");
     //4 bytes = int
+    printf("bytes[3]: %u\n", bytes[3]);
+    printf("bytes[2]: %u\n", bytes[2]);
+    printf("bytes[1]: %u\n", bytes[1]);
+    printf("bytes[0]: %u\n", bytes[0]);
     bytes[3] = (unsigned char)(idOfCommand >> 24);
     bytes[2] = (unsigned char)(idOfCommand >> 16);
     bytes[1] = (unsigned char)(idOfCommand >> 8);
     bytes[0] = (unsigned char)idOfCommand; //corresponds with first byte being the reportid
+    printf("after shift\n");
+    printf("bytes[3]: %u\n", bytes[3]);
+    printf("bytes[2]: %u\n", bytes[2]);
+    printf("bytes[1]: %u\n", bytes[1]);
+    printf("bytes[0]: %u\n", bytes[0]);
 }
 
 /**
  * @param idOfCommand, values id of what the current packet is and the values in the packet
 */
-std::vector<unsigned char> FloatPacketType::command(int idOfCommand, std::vector<double> values) {
+std::vector<unsigned char> FloatPacketType::command(int idOfCommand, std::vector<float> values) {
+    printf("command\n");
     writeId(idOfCommand, message);
+    printf("after writeId\n");
     for (int i = 0; i < numValues && i < values.size(); i++) {
+        printf("beginning of loop\n");
         int baseIndex = 4 * i + 4;
+        printf("before float to bits\n");
         int bits = float_to_bits(((float)values[i])); //TODO make sure it's being converted correctly
+        printf("message[3]: %u\n", message[3]);
+        printf("message[2]: %u\n", message[2]);
+        printf("message[1]: %u\n", message[1]);
+        printf("message[0]: %u\n", message[0]);
         message[0 + baseIndex] = (unsigned char)(bits & 0xFF);
         message[1 + baseIndex] = (unsigned char)(bits >> 8 & 0xFF);
         message[2 + baseIndex] = (unsigned char)(bits >> 16 & 0xFF);
         message[3 + baseIndex] = (unsigned char)(bits >> 24 & 0xFF);
+        printf("after shift\n");
+        printf("message[3]: %u\n", message[3 + baseIndex]);
+        printf("message[2]: %u\n", message[2 + baseIndex]);
+        printf("message[1]: %u\n", message[1 + baseIndex]);
+        printf("message[0]: %u\n", message[0 + baseIndex]);
     } 
     return message;
 }

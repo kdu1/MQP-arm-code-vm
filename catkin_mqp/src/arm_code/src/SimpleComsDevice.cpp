@@ -3,7 +3,7 @@
 #include <vector>
 #include <unordered_map>
 //#include "PacketType.h"
-//#include "FloatPacketType.h"
+//#include "FloatPacketType.h"u
 #include "SimpleComsDevice.h"
 //#include "Runnable.h"
 
@@ -16,8 +16,6 @@
 //#include <hidapi/hidapi.h>
 //#include <libusb.h>
 //#include <hidapi_libusb.h>
-
-#include <memory>
 #include <thread>
 #include <complex>
 #include <valarray>
@@ -51,9 +49,16 @@ typedef std::valarray<Complex> CArray;
  * Constructor
 */
 SimpleComsDevice::SimpleComsDevice(const char* path){
-    ROS_INFO("scd constructor");
-    SimpleComsDevice::handle = hid_open_path(path);
-    hid_device_info* devinfo = hid_enumerate(0x239A, 0x802C);
+    printf("SimpleComsDevice Constructor\n");
+    //printf("scd constructor");
+    const wchar_t* serial = L"F09D5B6E5337524651202020FF083841";
+    hid_device* handle = hid_open(0x16c0, 0x0486, NULL);//hid_open_path(path);
+    //prints whether open was successful or not
+    printf("hid_error: %ls\n", hid_error(handle));
+    SimpleComsDevice::setHandle(handle);
+
+    //print device info using enumerate for debugging
+    hid_device_info* devinfo = hid_enumerate(0x16C0, 0x0486);
     //print_device(devinfo);
     
     print_devices_with_descriptor(devinfo);
@@ -66,28 +71,31 @@ SimpleComsDevice::SimpleComsDevice(const char* path){
 //which calls HidApi.read + write
 //which calls hid_api.read + write
 bool SimpleComsDevice::validHandle(hid_device * handle){
-    ROS_INFO("in validHandle");
+    //printf("in validHandle");
     if (!handle) {
-        ROS_INFO("unable to open device\n");
+        printf("invalid handle\n");
+        //printf("unable to open device\n");
         hid_exit();
-        return 1;
+        return 0;
     }
+    return 1;
 }
 
 /**
  * print hid_device_info
  * @param cur_dev_ hid_device_info* struct
 */
+
 void SimpleComsDevice::print_device(struct hid_device_info *cur_dev) {
-	ROS_INFO("Device Found\n  type: %04hx %04hx\n  path: %s\n  serial_number: %ls", cur_dev->vendor_id, cur_dev->product_id, cur_dev->path, cur_dev->serial_number);
-	ROS_INFO("\n");
-	ROS_INFO("  Manufacturer: %ls\n", cur_dev->manufacturer_string);
-	ROS_INFO("  Product:      %ls\n", cur_dev->product_string);
-	ROS_INFO("  Release:      %hx\n", cur_dev->release_number);
-	ROS_INFO("  Interface:    %d\n",  cur_dev->interface_number);
-	ROS_INFO("  Usage (page): 0x%hx (0x%hx)\n", cur_dev->usage, cur_dev->usage_page);
-	//ROS_INFO("  Bus type: %u (%s)\n", (unsigned)cur_dev->bus_type, hid_bus_name(cur_dev->bus_type));
-	ROS_INFO("\n");
+	printf("Device Found\n  type: %04hx %04hx\n  path: %s\n  serial_number: %ls", cur_dev->vendor_id, cur_dev->product_id, cur_dev->path, cur_dev->serial_number);
+	printf("\n");
+	printf("  Manufacturer: %ls\n", cur_dev->manufacturer_string);
+	printf("  Product:      %ls\n", cur_dev->product_string);
+	printf("  Release:      %hx\n", cur_dev->release_number);
+	printf("  Interface:    %d\n",  cur_dev->interface_number);
+	printf("  Usage (page): 0x%hx (0x%hx)\n", cur_dev->usage, cur_dev->usage_page);
+	//printf("  Bus type: %u (%s)\n", (unsigned)cur_dev->bus_type, hid_bus_name(cur_dev->bus_type));
+	printf("\n");
 }
 
 /**
@@ -142,7 +150,7 @@ void SimpleComsDevice::print_devices_with_descriptor(struct hid_device_info *cur
 	printf("\n");
 }*/
 
- std::unordered_map<int, std::vector<SimpleComsDevice::Runnable>> events;
+ std::unordered_map<int, std::vector<Runnable>> events;
     
  //std::vector<FloatPacketType> pollingQueue;
 
@@ -158,24 +166,48 @@ void SimpleComsDevice::print_devices_with_descriptor(struct hid_device_info *cur
  * return FloatPacketType pointer corresponding to it
 */
  FloatPacketType* SimpleComsDevice::getPacket(int ID) {
-    ROS_INFO("getPacket");
+    printf("getPacket\n");
+    printf("ID: %d\n", ID);
+    if(SimpleComsDevice::getPollingQueue().size() == 0){
+        return nullptr;
+    }
     for (FloatPacketType q : SimpleComsDevice::getPollingQueue()) {
+        printf("idOfCommand: %d \n", q.idOfCommand);
         if (q.idOfCommand == ID){
-            ROS_INFO("id exists");
+            //printf("id exists");
             return &q; 
         }
     } 
     return nullptr;
 }
 
-
+/**
+ * writes target endpoint info from servo_jp and adds it to the pollingPacket to be polled and read by Process()
+ * Sets polling to true and has it be called by other writeFloats method
+ * @param id, values reportID and values to be written
+ */
 void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values) {
-        writeFloats(id, values, true);
+    //double checking stuff inside values for debugging
+    printf("writeFloats\n");
+    for(int i = 0; i < values.size(); i++){
+        printf("%f\n", values[i].real());
     }
-    
+    writeFloats(id, values, true);
+}
+   
+/**
+ * writes target endpoint info from servo_jp and adds it to the pollingPacket to be polled and read by Process()
+ * Actual code for writeFloats with polling
+ * @param id, values reportID and values to be written
+ */    
 void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool polling) {
-    float* floatvalues = reinterpret_cast<float(&)[2]>(values);
-    if (getPacket(id) == NULL) {
+    float* floatvalues = reinterpret_cast<float(&)[2]>(values);//cast from complex to float
+    //another debugging check
+    printf("floatvalues:\n");
+    for(int i = 0; i < sizeof(floatvalues)/sizeof(float); i++){
+        printf("%f", floatvalues[i]);
+    }
+    if (getPacket(id) == nullptr) {
         FloatPacketType pt = FloatPacketType(id, 64);
     //if (!polling)//TODO: it's not gonna go here
         //pt.oneShotMode(); 
@@ -210,13 +242,13 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
 /**
  * reads data given id
  * @param id reportid
- * @return vector of doubles containing read information
+ * @return vector of floats containing read information
  * gets the information given the id from the pollingPacket, then returns it
 */
  std::vector<float> SimpleComsDevice::readFloats(int id) {
-    ROS_INFO("readFloats");
-    if (getPacket(id) == NULL) {//packets are assigned an id related to the purpose, simplepacketcoms manages them
-        ROS_INFO("id null");
+    printf("readFloats");
+    if (getPacket(id) == nullptr) {//packets are assigned an id related to the purpose, simplepacketcoms manages them
+        //printf("id null");
         FloatPacketType fl = FloatPacketType(id, 64);
         addPollingPacket(fl);
         try {
@@ -227,12 +259,14 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         } 
     } 
 
-    ROS_INFO("readFloats");
+    //printf("readFloats");
+    printf("before getPacket id: %d\n", id);
     FloatPacketType* pt = getPacket(id);
-    ROS_INFO("before getUpstream stuff");
+    //printf("before getUpstream stuff");
     if(pt == nullptr){
-        ROS_INFO("null");
-        //I actually don't know what to do in this case
+        printf("null");
+        //TODO: I actually don't know what to do in this case
+        throw std::runtime_error("FloatPacketType null");
     }
     std::vector<float> values((pt->getUpstream()).size(), 0);
     for (int i = 0; i < (pt->getUpstream()).size() && i < values.size(); i++){
@@ -282,7 +316,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
                                 printf("Timeout resolved {}", ID); 
                             }
                             isTimedOut = false;
-                            std::vector<double> up = packet.parse(message);
+                            std::vector<float> up = packet.parse(message);
                             for (int i = 0; i < (packet.getUpstream()).size(); i++){
                                 packet.getUpstream()[i] = up[i];
                             }
@@ -313,11 +347,10 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         }
     } 
     if (events.find(packet.idOfCommand) == events.end()){
-        //Runnable ???
+        //Runnable
         //TODO not sure how to apply runnable correctly here
-        //I mean do I even need this? not sure where it adds any events from
         if (events.find(packet.idOfCommand) != events.end()) {
-            for (SimpleComsDevice::Runnable e : events[packet.idOfCommand]) {
+            for (Runnable e : events[packet.idOfCommand]) {
                 if (&e != nullptr) {
                     try {
                         //e(*this);//TODO: uh oh
@@ -367,10 +400,12 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
     //this->connected = true;
     connected = true;
     
+    //TODO: in the original inside of the thread they just make a new runnable
     //TODO: thread troubles may ensue
     std::thread([&]() {
         //while still connected to device, process everything in the pollingpacket which manages all the data being written and read
-        while (connected) {
+        Runnable(this);
+        /*while (connected) {
             try {
                 std::vector<FloatPacketType, std::allocator<FloatPacketType>> pollingQueue = SimpleComsDevice::getPollingQueue();
                 //process all packets in pollingQueue
@@ -390,7 +425,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
             }
         }
         this->disconnectDeviceImp();
-        std::cout << "SimplePacketComs disconnect" << std::endl;
+        std::cout << "SimplePacketComs disconnect" << std::endl;*/
     }).detach();
     //SimpleComsDevice::Runnable* t1 = new SimpleComsDevice::Runnable();
     //t1->start();
@@ -458,8 +493,7 @@ void setName(String name) {
 
 //int write(byte[] paramArrayOfbyte, int paramInt1, int paramInt2);
 
-//k what does this do?
-//does it actually do the disconnection
+//disconnection
  bool SimpleComsDevice::disconnectDeviceImp(){
     //do this just in case
     hid_close(SimpleComsDevice::getHandle());
@@ -519,16 +553,17 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
             packet(5) = array(3); % sets third motor's position value to the third value of array */
         //size in matlab: self.write(1848, packet)
         if(!validHandle(SimpleComsDevice::getHandle())){
-            ROS_INFO("unable to open device\n");
+            //printf("unable to open device\n");
+            printf("invalid handle\n");
             hid_exit();
-            throw ("unable to open device");
-            return 1;
+            throw ("invalid handle");
+            return -1;
         }
         
-        //put each packet value in double array
+        //put each packet value in float array
         //TODO: may need to change this to packet size anyway
         /*const int dslen = 3;//packet.size(); //we know it's 3 I'm not dealing with c++ rn
-        double ds[dslen]; //now put this in buf somewhere
+        float ds[dslen]; //now put this in buf somewhere
         for(int i = 0; i < dslen; i++){
             ds[i] = packet[i];
         }*/
@@ -589,8 +624,8 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
             }
         }
         //TODO: can potentially replace this with a ROS node, and have it send information through the node.
-        //flashing ROS code onto the arm board with micropython in order to have the ros node on the board
-        //or just wire it to the raspberry pi which is probably easier
+        //flashing ROS code onto the arm board with micropython in order to have the ros node on the board, or can use arduino
+        //or just wire it to the raspberry pi which is probably easier but will have to rewrite firmware
         int res = hid_write(SimpleComsDevice::getHandle(), bytesbuffer, len); //hid_device *dev, const unsigned char *data, size_t length
         printf("%d", res);
         if(res < 0){
@@ -598,9 +633,10 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
         }
         return res;
     }
-    //TODO: rn the try catch stuff is wrong but I don't know what error to catch for this
-    catch (int res) {
+    //TODO: 
+    catch (const std::exception& e) {
         printf("Command error, reading too fast\n");
+        printf(e.what());
     }
 }
 
@@ -610,29 +646,24 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
  * reads position data from each motor
 */
 int SimpleComsDevice::read(std::vector<unsigned char> bytes, int milliseconds){
-
-
-
-    
-    //matlab has
-    //self.read(1910); 1910 is idOfCommand
-
+    printf("read\n");
     //1910 is reportID aka what goes in the first position of the buffer
     if(!validHandle(SimpleComsDevice::getHandle())){
-        ROS_INFO("unable to open device\n");
+        //printf("unable to open device\n");
         hid_exit();
         throw std::runtime_error("unable to open device");
     }
 
     //data is buf
-    /*const int length = 256; //I'd like to think it doesn't actually matter that much what the length is
+    /*const int length = 256; //length no longer set here
     unsigned char buf[length + 1];
     memset(buf,0,sizeof(buf));*/
     
     //it wants unsigned char * instead of vector
     unsigned char* bytesbuffer = &bytes[0];
+    printf("before hid_read_timeout:\n");
     int res = hid_read_timeout(SimpleComsDevice::getHandle(), bytesbuffer, bytes.size(), milliseconds); //hid_device *dev, unsigned char *data, size_t length, int milliseconds
-    ROS_INFO("%d", res);
+    //printf("%d", res);
     
     /*
     //data is buf
@@ -641,7 +672,7 @@ int SimpleComsDevice::read(std::vector<unsigned char> bytes, int milliseconds){
     memset(buf,0,sizeof(buf));
     buf[0] = reportID;
     //I think this is how to get the returned info
-    std::vector<double> retbuf;
+    std::vector<float> retbuf;
 
     //int milliseconds = 500;
     

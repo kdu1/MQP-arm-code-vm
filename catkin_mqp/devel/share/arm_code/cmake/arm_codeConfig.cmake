@@ -116,7 +116,7 @@ if(NOT "/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/include " STREQUA
   endforeach()
 endif()
 
-set(libraries "arm_code")
+set(libraries "arm_code;hidapi")
 foreach(library ${libraries})
   # keep build configuration keywords, target names and absolute libraries as-is
   if("${library}" MATCHES "^(debug|optimized|general)$")
