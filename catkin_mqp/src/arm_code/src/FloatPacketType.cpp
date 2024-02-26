@@ -120,9 +120,9 @@ std::vector<unsigned char> FloatPacketType::command(int idOfCommand, std::vector
     writeId(idOfCommand, FloatPacketType::message);
     printf("after writeId\n");
     for (int i = 0; i < numValues && i < values.size(); i++) {
-        printf("beginning of loop\n");
+        //printf("beginning of loop\n");
         int baseIndex = 4 * i + 4;
-        printf("%f\n", values[i]);
+        //printf("%f\n", values[i]);
         //printf("before float to bits\n");
         //float bits = values[i];
         unsigned long bits = *reinterpret_cast<unsigned long*>(&values[i]);

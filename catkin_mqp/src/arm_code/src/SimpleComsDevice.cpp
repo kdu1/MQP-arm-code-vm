@@ -532,6 +532,7 @@ void setName(String name) {
 
 //disconnection
  bool SimpleComsDevice::disconnectDeviceImp(){
+    connected = false;
     printf("closing device...\n");
     hid_close(SimpleComsDevice::getHandle());
     printf("device closed\n");
