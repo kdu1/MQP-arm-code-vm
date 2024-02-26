@@ -92,6 +92,7 @@ int FloatPacketType::toInt(unsigned char byteValue) {
 */
 void FloatPacketType::writeId(int idOfCommand, std::vector<unsigned char> bytes) {
     printf("writeId\n");
+    fflush( stdout );
     //4 bytes = int
     /*printf("bytes[3]: %u\n", bytes[3]);
     printf("bytes[2]: %u\n", bytes[2]);
@@ -116,10 +117,13 @@ void FloatPacketType::writeId(int idOfCommand, std::vector<unsigned char> bytes)
 */
 std::vector<unsigned char> FloatPacketType::command(int idOfCommand, std::vector<float> values) {
     printf("command\n");
+    fflush( stdout );
     printf("message size: %d\n", (int)(FloatPacketType::message).size());
+    fflush( stdout );
     writeId(idOfCommand, FloatPacketType::message);
     printf("after writeId\n");
-    for (int i = 0; i < numValues && i < values.size(); i++) {
+    fflush( stdout );
+    for (int i = 0; i < numValues && static_cast<std::vector<float>::size_type>(i) < values.size(); i++) {
         //printf("beginning of loop\n");
         int baseIndex = 4 * i + 4;
         //printf("%f\n", values[i]);

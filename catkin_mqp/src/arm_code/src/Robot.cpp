@@ -232,6 +232,7 @@ class Robot{
                 for(int k = 0; k < detCheckGet.size(); k++){
                     for(int l = 0; l < detCheckGet[0].size(); l++){
                         printf("detCheckGet[%d][%d]: %f\n", k, l, detCheckGet[k][l].real());
+                        fflush( stdout );
                     }
                 }
 
@@ -255,6 +256,7 @@ class Robot{
                 for(int k = 0; k < jacobvtp.size(); k++){
                     for(int l=0; l < jacobvtp[k].size(); l++){
                         printf("jacobvtp[%d][%d]: %f\n", k, l, jacobvtp[k][l].real());
+                        fflush( stdout );
                     }
                 }
                 //jacobv = {jacobv[0], jacobv[1], jacobv[2]};
@@ -399,7 +401,9 @@ class Robot{
     */
     void write(int id, std::vector<Complex> values){
         printf("write\n");
+        fflush( stdout );
         printf("id: %d\n", id);
+        fflush( stdout );
         try{
              s->writeFloats(id, values);//Then convert it to floats cause the complex is just floats with twice as big array
             
@@ -506,8 +510,10 @@ class Robot{
         packet[5] = array[2]; // Motor 3 target position
 
         printf("Data to be sent to hid_write:\n");
+        fflush( stdout );
         for(int i = 0; i < packet.size(); i++){
             printf("%f\n", packet[i].real());
+            fflush( stdout );
         }
         
         //TODO:uncomment
@@ -769,6 +775,7 @@ class Robot{
         for(int k = 0; k < matrix.size(); k++){
             for(int l=0; l < matrix[k].size(); l++){
                 printf("matrix[%d][%d]: %f\n", k, l, matrix[k][l].real());
+                fflush( stdout );
             }
         }
         //check if size matches
@@ -908,6 +915,7 @@ class Robot{
     //need to exit
     void stop(){
         printf("Stopping...\n");
+        fflush( stdout );
         s->disconnectDeviceImp();
     }
 
@@ -964,6 +972,7 @@ int main(int argc, char **argv)
     //do the hw5 stuff here
     //no idea if it works like this
     printf("in main\n");
+    fflush( stdout );
     std::vector<std::vector<float>> cRed(3, std::vector<float>(3, 0));
     //std::vector<float> desPos = cRed[0]; //why did I do that
     const char* path = "/dev/hidraw1";
@@ -978,7 +987,8 @@ int main(int argc, char **argv)
     CArray in = {std::complex<float>(0,0), std::complex<float>(0,0), std::complex<float>(0,0)};
     robot.servo_jp(in);
     printf("servo_jp done\n");
-    robot.stop();
+    fflush( stdout );
+    robot.stop();//already stops in SimplePacketComs
 
     //Home position
     float x = 0;//desPos[0];

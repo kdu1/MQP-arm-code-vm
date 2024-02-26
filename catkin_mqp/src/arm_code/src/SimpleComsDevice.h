@@ -90,10 +90,14 @@ class SimpleComsDevice {
         hid_device * handle; //= hid_open_path(path);
 
     public:
+        bool connected;
+        bool virtualv = false;
+        int readTimeout = 100000;
+        bool isTimedOut = false;
     
     // A Functor
     /*struct Runnable
-    {
+    
         Runnable() {  }
     
         // This operator overloading enables calling
@@ -349,21 +353,23 @@ class Runnable
             while (s.getConnected()) {
                 try {
                     std::vector<FloatPacketType> pollingQueue = s.getPollingQueue();
-                    for (int i = 0; i < pollingQueue.size(); i++) {
+                    for (int i = 0; static_cast<std::vector<float>::size_type>(i) < pollingQueue.size(); i++) {
                         FloatPacketType pollingPacket = pollingQueue[i];
                         if (pollingPacket.sendOk()){
-                            s.process(pollingPacket); //?
+                            s.process(pollingPacket); 
                         }
                     } 
                 } catch (const std::exception& e) {
                     printf("connect thread exception: ");
-                    std::cerr << e.what();
+                    std::cerr << e.what() << std::endl;
+                    fflush(stdout);
                 } 
                 try {
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 } catch (const std::exception& e1) {
                     printf("connect thread sleep exception: ");
-                    std::cerr << e1.what();
+                    std::cerr << e1.what() << std::endl;
+                    fflush(stdout);
                     s.setConnected(false);
                 } 
             } 

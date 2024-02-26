@@ -56,6 +56,6 @@ rt_nonfinite.o: rt_nonfinite.h rt_nonfinite.cpp
 	gcc -g -Wall -c rt_nonfinite.cpp
 
 clean:
-	rm -f Robot.o SimpleComsDevice.o FloatPacketType.o ik3001.o cubic_traj.o arm_code
+	rm -f Robot.o SimpleComsDevice.o FloatPacketType.o ik3001.o cubic_traj.o rt_nonfinite.o $(COBJS) arm_code
 
 all: arm_code

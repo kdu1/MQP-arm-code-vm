@@ -32,10 +32,8 @@ typedef std::valarray<Complex> CArray;
 
 
 //definitions
- bool connected = false;
- bool virtualv = false;
- int readTimeout = 100;
- bool isTimedOut = false;
+//s bool connected = false;
+
     
 
 //going to open it in here instead of Robot
@@ -50,18 +48,19 @@ typedef std::valarray<Complex> CArray;
 */
 SimpleComsDevice::SimpleComsDevice(const char* path){
     printf("SimpleComsDevice Constructor\n");
-    //printf("scd constructor");
-    const wchar_t* serial = L"F09D5B6E5337524651202020FF083841";
+    fflush( stdout );
+    //const wchar_t* serial = L"F09D5B6E5337524651202020FF083841";
     //hid_device* handle = hid_open_path(path); //open by path
     hid_device* handle = hid_open(0x16c0, 0x0486, NULL);//open by vid/pid
     //prints whether open was successful or not
     printf("hid_error: %ls\n", hid_error(handle));
+    fflush( stdout );
     SimpleComsDevice::setHandle(handle);
 
     //print device info using enumerate for debugging
-    hid_device_info* devinfo = hid_enumerate(0x16C0, 0x0486);
+   /* hid_device_info* devinfo = hid_enumerate(0x16C0, 0x0486);
     print_devices_with_descriptor(devinfo);
-    hid_free_enumeration(devinfo);
+    hid_free_enumeration(devinfo);*/
 }
 
 
@@ -73,6 +72,7 @@ bool SimpleComsDevice::validHandle(hid_device * handle){
     //printf("in validHandle");
     if (!handle) {
         printf("invalid handle\n");
+        fflush( stdout );
         //printf("unable to open device\n");
         hid_exit();
         return 0;
@@ -87,14 +87,22 @@ bool SimpleComsDevice::validHandle(hid_device * handle){
 
 void SimpleComsDevice::print_device(struct hid_device_info *cur_dev) {
 	printf("Device Found\n  type: %04hx %04hx\n  path: %s\n  serial_number: %ls", cur_dev->vendor_id, cur_dev->product_id, cur_dev->path, cur_dev->serial_number);
+    fflush( stdout );
 	printf("\n");
+    fflush( stdout );
 	printf("  Manufacturer: %ls\n", cur_dev->manufacturer_string);
+    fflush( stdout );
 	printf("  Product:      %ls\n", cur_dev->product_string);
+    fflush( stdout );
 	printf("  Release:      %hx\n", cur_dev->release_number);
+    fflush( stdout );
 	printf("  Interface:    %d\n",  cur_dev->interface_number);
+    fflush( stdout );
 	printf("  Usage (page): 0x%hx (0x%hx)\n", cur_dev->usage, cur_dev->usage_page);
+    fflush( stdout );
 	//printf("  Bus type: %u (%s)\n", (unsigned)cur_dev->bus_type, hid_bus_name(cur_dev->bus_type));
 	printf("\n");
+    fflush( stdout );
 }
 
 /**
@@ -166,12 +174,15 @@ void SimpleComsDevice::addPollingPacket(FloatPacketType packet) {
 */
  FloatPacketType* SimpleComsDevice::getPacket(int ID) {
     printf("getPacket\n");
+    fflush( stdout );
     printf("ID: %d\n", ID);
+    fflush( stdout );
     if(SimpleComsDevice::getPollingQueue().size() == 0){
         return nullptr;
     }
     for (FloatPacketType q : SimpleComsDevice::getPollingQueue()) {
         printf("idOfCommand: %d \n", q.idOfCommand);
+        fflush( stdout );
         if (q.idOfCommand == ID){
             //printf("id exists");
             return &q; 
@@ -188,6 +199,7 @@ void SimpleComsDevice::addPollingPacket(FloatPacketType packet) {
 void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values) {
     //double checking stuff inside values for debugging
     printf("writeFloats\n");
+    fflush( stdout );
     /*for(int i = 0; i < values.size(); i++){
         printf("values[%d]: %f\n", i, values[i].real());
     }*/
@@ -211,6 +223,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
 
     //another debugging check
     printf("floatvalues:\n");
+    fflush( stdout );
     /*for(int i = 0; i < values.size(); i++){
         printf("floatvalues[%d]: %f\n", i,  floatvalues[i]);
     }*/
@@ -219,7 +232,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         //if (!polling)//TODO: it's not gonna go here
             //pt.oneShotMode(); 
         std::vector<float> newdownstream;
-        for (int i = 0; i < (pt.getDownstream()).size() && i < values.size(); i++){
+        for (int i = 0; static_cast<std::vector<float>::size_type>(i) < (pt.getDownstream()).size() && static_cast<std::vector<float>::size_type>(i) < values.size(); i++){
             newdownstream.push_back(floatvalues[i]); 
             
             //TODO: is this correct?
@@ -227,18 +240,20 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         pt.setDownstream(newdownstream);
         SimpleComsDevice::addPollingPacket(pt); //size added here will be size of FloatPacketType called in process()
         try {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         } catch (const std::exception& e) {
             printf("writeFloats thread sleep exception: ");
+            fflush( stdout );
             printf(e.what());
+            fflush( stdout );
         } 
     } else {
         std::vector<FloatPacketType, std::allocator<FloatPacketType>> pollingQueue = SimpleComsDevice::getPollingQueue();
-        for (int j = 0; j < pollingQueue.size(); j++) {
+        for (int j = 0; static_cast<std::vector<FloatPacketType>::size_type>(j) < pollingQueue.size(); j++) {
             FloatPacketType pt = pollingQueue[j];
             std::vector<float> newdownstream; //new vector for downstream
             if (/*FloatPacketType.class.isInstance(pt) && */pt.idOfCommand == id) {
-                for (int i = 0; i < pt.getDownstream().size() && i < values.size(); i++){
+                for (int i = 0; static_cast<std::vector<float>::size_type>(i) < pt.getDownstream().size() && static_cast<std::vector<float>::size_type>(i) < values.size(); i++){
                     //check if in floatvalues bounds
                     if(i < sizeof(floatvalues)/sizeof(float)){
                         newdownstream.push_back(floatvalues[i]); 
@@ -267,24 +282,29 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
 */
  std::vector<float> SimpleComsDevice::readFloats(int id) {
     printf("readFloats\n");
+    fflush( stdout );
     if (getPacket(id) == nullptr) {//packets are assigned an id related to the purpose, simplepacketcoms manages them
         //printf("id null");
         FloatPacketType fl = FloatPacketType(id, 64);
         SimpleComsDevice::addPollingPacket(fl);
         try {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         } catch (const std::exception& e) {
             printf("readFloats thread sleep exception: ");
+            fflush( stdout );
             printf(e.what());
+            fflush( stdout );
         } 
     } 
 
     //printf("readFloats");
     printf("before getPacket id: %d\n", id);
+    fflush( stdout );
     FloatPacketType* pt = getPacket(id);
     //printf("before getUpstream stuff");
     if(pt == nullptr){
         printf("null");
+        fflush( stdout );
         //TODO: I actually don't know what to do in this case
         throw std::runtime_error("FloatPacketType null");
     }
@@ -331,20 +351,23 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
                 }*/
                 int val = write(message, message.size(), 1); //call to function that will call hid_write
                 printf("result from write: %d\n", val);
+                fflush( stdout );
                 if (val > 0) {
                     //gets result after write
                     int readint = read(message, SimpleComsDevice::getReadTimeout()); //calls hid_read
                     printf("read result: %d \n", readint);
+                    fflush( stdout );
                     //if read result greater than or equal to packet upstream size, do some timeout resolving packet managing
-                    if (readint >= (packet.getUpstream()).size()) {
+                    if (static_cast<std::vector<float>::size_type>(readint) >= (packet.getUpstream()).size()) {
                         int ID = SimpleComsDevice::getId(message); // if current packet being processed matches current input id 
                         if (ID == packet.idOfCommand) {
-                            if (isTimedOut){
-                                printf("Timeout resolved {}\n", ID); 
+                            if (SimpleComsDevice::isTimedOut){
+                                printf("Timeout resolved %d\n", ID); 
+                                fflush( stdout );
                             }
-                            isTimedOut = false;
+                            SimpleComsDevice::isTimedOut = false;
                             std::vector<float> up = packet.parse(message);
-                            for (int i = 0; i < (packet.getUpstream()).size(); i++){
+                            for (int i = 0; static_cast<std::vector<float>::size_type>(i) < (packet.getUpstream()).size(); i++){
                                 packet.getUpstream()[i] = up[i];
                             }
                         } else {
@@ -352,47 +375,56 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
                                 read(message, SimpleComsDevice::getReadTimeout()); 
                             }
                             printf(" ");
-                            isTimedOut = true;
+                            fflush( stdout );
+                            SimpleComsDevice::isTimedOut = true;
                             return;
                         } 
                     } else {
-                        isTimedOut = true;
+                        SimpleComsDevice::isTimedOut = true;
                         return;
                     } 
                 } else {
                     printf("write return value not 1\n");
+                    fflush( stdout );
                     return;
                 } 
             } catch (const std::exception& e) {
                 //t.printStackTrace(System.out);
                 printf("exception: in process under not isvirtual ");
                 printf(e.what());
+                fflush( stdout );
                 disconnect();
             } 
-    } else {
+    } 
+    else {
         std::vector<float> newupstream;
         std::vector<float> currentDownstream = packet.getDownstream(); 
-        for (int j = 0; j < (packet.getDownstream()).size() && j < (packet.getUpstream()).size(); j++){
+        for (int j = 0; static_cast<std::vector<float>::size_type>(j) < (packet.getDownstream()).size() && static_cast<std::vector<float>::size_type>(j) < (packet.getUpstream()).size(); j++){
             newupstream[j] = currentDownstream[j];
             //packet.getUpstream()[j] = packet.getDownstream()[j]; 
         }
         packet.setUpstream(newupstream);
     } 
+    //if there are packets that were added to events, run each one
     if (events.find(packet.idOfCommand) == events.end()){
-        //Runnable
-        //TODO not sure how to apply runnable correctly here
-        if (events.find(packet.idOfCommand) != events.end()) {
-            for (Runnable e : events[packet.idOfCommand]) {
-                if (&e != nullptr) {
-                    try {
-                        //e(*this);
-                        e(*this);
-                    } catch (const std::exception& e) {
-                        std::cout << e.what() << std::endl;
-                    }
+        printf("going through events\n");
+        fflush(stdout);
+        //Runs runnable
+        //if (events.find(packet.idOfCommand) != events.end()) {
+        for (Runnable e : events[packet.idOfCommand]) {
+            printf("runnable\n");
+            fflush(stdout);
+            if (&e != nullptr) {
+                try {
+                    //e(*this);
+                    e(*this);
+                } catch (const std::exception& e) {
+                    std::cout << e.what() << std::endl;
+                    fflush( stdout );
                 }
             }
         }
+        //}
 
         /*
         for (SimpleComsDevice::Runnable e : this->events.at((int)packet.idOfCommand)) {
@@ -411,13 +443,15 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
     } catch (const std::exception& e) {
         printf("exception: ");
         printf(e.what());
+        fflush( stdout );
     }
     printf("end of process\n");
+    fflush( stdout );
     packet.done = true;
 }
 
  int SimpleComsDevice::getReadTimeout() {
-    return readTimeout;
+    return SimpleComsDevice::readTimeout;
 }
 
 /**
@@ -431,37 +465,46 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         setVirtual(true);
     } 
     //this->connected = true;
-    connected = true;
+    SimpleComsDevice::connected = true;
     //TODO: in the original inside of the thread they just make a new runnable
     //TODO: thread troubles may ensue
     std::thread([&]() {
         //while still connected to device, process everything in the pollingpacket which manages all the data being written and read
         //Runnable(this);
-        while (connected) {
+        while (SimpleComsDevice::connected) {
             try {
                 std::vector<FloatPacketType, std::allocator<FloatPacketType>> pollingQueue = SimpleComsDevice::getPollingQueue();
                 //process all packets in pollingQueue
                 //printf("Polling queue size: %d\n", pollingQueue.size());
-                for (int i = 0; i < pollingQueue.size(); i++) {
+                for (int i = 0; static_cast<std::vector<FloatPacketType>::size_type>(i) < pollingQueue.size(); i++) {
                     printf("polling i: %d\n", i);
+                    fflush( stdout );
                     FloatPacketType pollingPacket = pollingQueue[i];
-                    printf("pollingPacket.done: %d\n", pollingPacket.done);
+                    fflush( stdout );
                     if (pollingPacket.sendOk() && pollingPacket.done == false){
                         process(pollingPacket);
                     }
+                    //mark polling packet done
+                    pollingQueue[i].done = true;
+                    SimpleComsDevice::setPollingQueue(pollingQueue);
                 }
             } catch (std::exception& e) {
                 std::cout << e.what() << std::endl;
+                //printf(e.what());
+                fflush( stdout );
             }
             try {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             } catch (std::exception& e1) {
                 std::cout << e1.what() << std::endl;
-                connected = false;
+                //printf(e1.what());
+                fflush( stdout );
+                SimpleComsDevice::connected = false;
             }
         }
-        this->disconnectDeviceImp();
-        std::cout << "SimplePacketComs disconnect" << std::endl;
+        //this->disconnectDeviceImp();
+        //printf("SimplePacketComs disconnect\n");
+        //fflush( stdout );
     }).detach();//TODO: figure out threads
 
     //SimpleComsDevice::Runnable* t1 = new SimpleComsDevice::Runnable();
@@ -486,10 +529,12 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
             SimpleComsDevice.this.connected = false;
         } 
     } 
-
+    
     SimpleComsDevice.this.disconnectDeviceImp();
     printf("SimplePacketComs disconnect");*/
     //}.start();
+    std::cout << "end of connect" << std::endl;
+    fflush( stdout );
     return true;
 }
 
@@ -499,19 +544,19 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
  void SimpleComsDevice::disconnect() {
     hid_close(SimpleComsDevice::getHandle());
     hid_exit();
-    connected = false;
+    SimpleComsDevice::connected = false;
 }
 
  bool SimpleComsDevice::isVirtual() {
-    return virtualv;
+    return SimpleComsDevice::virtualv;
 }
 
  void SimpleComsDevice::setVirtual(bool virtualv) {
-    virtualv = virtualv;
+    SimpleComsDevice::virtualv = virtualv;
 }
 
  void SimpleComsDevice::setReadTimeout(int readTimeout) {
-    readTimeout = readTimeout;
+    SimpleComsDevice::readTimeout = readTimeout;
 }
 
 /*String getName() {
@@ -523,7 +568,7 @@ void setName(String name) {
 }*/
 
  bool SimpleComsDevice::getIsTimedOut() {
-    return isTimedOut;
+    return SimpleComsDevice::isTimedOut;
 }
 
 //int read(byte[] paramArrayOfbyte, int paramInt);
@@ -532,11 +577,14 @@ void setName(String name) {
 
 //disconnection
  bool SimpleComsDevice::disconnectDeviceImp(){
-    connected = false;
+    SimpleComsDevice::connected = false;
     printf("closing device...\n");
+    fflush( stdout );
     hid_close(SimpleComsDevice::getHandle());
     printf("device closed\n");
+    fflush( stdout );
     hid_exit();
+    return true;
 }
 
 /**
@@ -546,12 +594,13 @@ bool SimpleComsDevice::connectDeviceImp(){
     return true;
 }
 
+
 /**
  * setConnected
  * @param connected value 
 */
 void SimpleComsDevice::setConnected(bool set){
-    connected = set;
+    SimpleComsDevice::connected = set;
 }
 
 /**
@@ -559,7 +608,7 @@ void SimpleComsDevice::setConnected(bool set){
  * @return connected value 
 */
 bool SimpleComsDevice::getConnected(){
-    return connected;
+    return SimpleComsDevice::connected;
 }
 
 
@@ -583,6 +632,7 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
     
     try{
         printf("write\n");
+        fflush( stdout );
         //data
             //java just has reportid being 0 cast to a byte
         //first byte is a thing
@@ -597,6 +647,7 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
         if(!validHandle(SimpleComsDevice::getHandle())){
             //printf("unable to open device\n");
             printf("invalid handle\n");
+            fflush( stdout );
             hid_exit();
             throw std::runtime_error("invalid handle");
             return -1;
@@ -632,7 +683,7 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
         buf[3] = packet[2];*/
 
         // Precondition checks
-        if (packet.size() < len) {
+        if (packet.size() < static_cast<std::vector<long unsigned int>::size_type>(len)) {
             len = packet.size();
         }
 
@@ -662,7 +713,7 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
             if (len >= 1) {
                 
                 //copy packet into bytesbuffer at index 1
-                for(int i = 0; i < packet.size(); i++){
+                for(int i = 0; static_cast<std::vector<long unsigned int>::size_type>(i) < packet.size(); i++){
                     bytesbuffer[i+1] = packet[i];
                 }
                 
@@ -673,21 +724,31 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
         //or just wire it to the raspberry pi which is probably easier but will have to rewrite firmware
 
         printf("before hid_write\n");
+        fflush( stdout );
         if(!validHandle(SimpleComsDevice::getHandle())){
             throw std::runtime_error("device handle invalid");
+            return -1;
         }
         //TODO: here's the issue, idk if I can write to hid_write with a float array twice as long
         int res = hid_write(SimpleComsDevice::getHandle(), bytesbuffer, len); //hid_device *dev, const unsigned char *data, size_t length
-        printf("%d", res);
+        printf("%d\n", res);
+        fflush( stdout );
         printf("after hid_write\n");
+        fflush( stdout );
         if(res < 0){
             printf("Unable to write()\n: %ls\n", hid_error(SimpleComsDevice::getHandle()));
+            fflush( stdout );
+            return -1;
         }
         return res;
     } 
     catch (const std::exception& e) {
         printf("Command error, reading too fast\n");
-        printf(e.what());
+        fflush( stdout );
+        std::cout << e.what() << std::endl;
+        //printf(e.what());
+        fflush( stdout );
+        return -1;
     }
 }
 
@@ -698,6 +759,7 @@ int SimpleComsDevice::write(std::vector<unsigned char> packet, int len, unsigned
 */
 int SimpleComsDevice::read(std::vector<unsigned char> bytes, int milliseconds){
     printf("read\n");
+    fflush( stdout );
     //reportID is what goes in the first position of the buffer
     if(!validHandle(SimpleComsDevice::getHandle())){
         hid_exit();
@@ -708,9 +770,12 @@ int SimpleComsDevice::read(std::vector<unsigned char> bytes, int milliseconds){
     //it wants unsigned char * instead of vector
     unsigned char* bytesbuffer = &bytes[0];
     printf("before hid_read_timeout:\n");
+    fflush( stdout );
     int res = hid_read_timeout(SimpleComsDevice::getHandle(), bytesbuffer, bytes.size(), milliseconds); //hid_device *dev, unsigned char *data, size_t length, int milliseconds
     printf("after hid_read_timeout\n"); //TODO: unreachable??
+    fflush( stdout );
     printf("hid_read_timeout: %d\n", res);
+    fflush( stdout );
     
     /*
     //data is buf
