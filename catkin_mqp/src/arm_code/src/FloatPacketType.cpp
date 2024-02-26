@@ -4,6 +4,10 @@
 #include <cstdint> 
 #include "FloatPacketType.h"
 
+#include <iostream>
+#include <bitset>
+#include <climits>
+
 /*std::vector<float> downstream;
 std::vector<float> upstream;
 bool oneShotMode = false;
@@ -19,41 +23,41 @@ int numValues = packetSize / 4 - 1;*/
 
 std::vector<float> returnValues;
 
-std::vector<unsigned char> message;
+//std::vector<unsigned char> message;
 
 
 std::vector<float> FloatPacketType::getUpstream() {
     //ROS_INFO("getUpstream");
-    return upstream;
+    return FloatPacketType::upstream;
 }
 
 void FloatPacketType::setUpstream(std::vector<float> upstream) {
-    upstream = upstream;
+    FloatPacketType::upstream = upstream;
 }
 
 std::vector<float> FloatPacketType::getDownstream() {
     ////ROS_INFO("getDownstream");
-    return downstream;
+    return FloatPacketType::downstream;
 }
 
 void FloatPacketType::setDownstream(std::vector<float> downstream) {
-    downstream = downstream;
+    FloatPacketType::downstream = downstream;
 }
 
 FloatPacketType::FloatPacketType(int id, int size) {
     //super(id)
-    //ROS_INFO("FloatPacketType constructor");
-    packetSize = size;
-    numberOfBytesPerValue = 4;
-    numValues = packetSize / numberOfBytesPerValue - 4 / numberOfBytesPerValue;
+    //printf("FloatPacketType constructor");
+    FloatPacketType::packetSize = size;
+    FloatPacketType::numberOfBytesPerValue = 4;
+    FloatPacketType::numValues = packetSize / numberOfBytesPerValue - 4 / numberOfBytesPerValue; // 
     std::vector<float> retval(numValues, 0);
-    returnValues = retval;
-    std::vector<unsigned char> msg(packetSize, 0);
-    message = msg;
+    FloatPacketType::returnValues = retval;
+    std::vector<unsigned char> msg(packetSize);//64
+    FloatPacketType::message = msg;
     std::vector<float> downst(numValues, 0);
-    setDownstream(downst);
+    FloatPacketType::setDownstream(downst);
     std::vector<float> upst(numValues, 0);
-    setUpstream(upst);
+    FloatPacketType::setUpstream(upst);
 
     //this is already being done
     /*for (int i = 0; i < numValues; i++) 
@@ -83,55 +87,63 @@ int FloatPacketType::toInt(unsigned char byteValue) {
 }
 
 /**
- * TODO: wait this is void, passes by value
- * here and writeid is where the actual calculation seems to be occuring
- * @param
+ * Sets input unsigned char value to values designated by idOfCommand
+ * @param idOfCommand, bytes reportID and array contained in Packet
 */
 void FloatPacketType::writeId(int idOfCommand, std::vector<unsigned char> bytes) {
     printf("writeId\n");
     //4 bytes = int
-    printf("bytes[3]: %u\n", bytes[3]);
+    /*printf("bytes[3]: %u\n", bytes[3]);
     printf("bytes[2]: %u\n", bytes[2]);
     printf("bytes[1]: %u\n", bytes[1]);
-    printf("bytes[0]: %u\n", bytes[0]);
+    printf("bytes[0]: %u\n", bytes[0]);*/
+    //bit shifting to convert data type
     bytes[3] = (unsigned char)(idOfCommand >> 24);
     bytes[2] = (unsigned char)(idOfCommand >> 16);
     bytes[1] = (unsigned char)(idOfCommand >> 8);
     bytes[0] = (unsigned char)idOfCommand; //corresponds with first byte being the reportid
-    printf("after shift\n");
+    /*printf("after shift\n");
     printf("bytes[3]: %u\n", bytes[3]);
     printf("bytes[2]: %u\n", bytes[2]);
     printf("bytes[1]: %u\n", bytes[1]);
-    printf("bytes[0]: %u\n", bytes[0]);
+    printf("bytes[0]: %u\n", bytes[0]);*/
 }
 
 /**
+ * Converts input vector to hid readable byte vector format
  * @param idOfCommand, values id of what the current packet is and the values in the packet
+ * @return a byte vector for writing to the hid device
 */
 std::vector<unsigned char> FloatPacketType::command(int idOfCommand, std::vector<float> values) {
     printf("command\n");
-    writeId(idOfCommand, message);
+    printf("message size: %d\n", (int)(FloatPacketType::message).size());
+    writeId(idOfCommand, FloatPacketType::message);
     printf("after writeId\n");
     for (int i = 0; i < numValues && i < values.size(); i++) {
         printf("beginning of loop\n");
         int baseIndex = 4 * i + 4;
-        printf("before float to bits\n");
-        int bits = float_to_bits(((float)values[i])); //TODO make sure it's being converted correctly
-        printf("message[3]: %u\n", message[3]);
-        printf("message[2]: %u\n", message[2]);
-        printf("message[1]: %u\n", message[1]);
-        printf("message[0]: %u\n", message[0]);
-        message[0 + baseIndex] = (unsigned char)(bits & 0xFF);
-        message[1 + baseIndex] = (unsigned char)(bits >> 8 & 0xFF);
-        message[2 + baseIndex] = (unsigned char)(bits >> 16 & 0xFF);
-        message[3 + baseIndex] = (unsigned char)(bits >> 24 & 0xFF);
-        printf("after shift\n");
-        printf("message[3]: %u\n", message[3 + baseIndex]);
-        printf("message[2]: %u\n", message[2 + baseIndex]);
-        printf("message[1]: %u\n", message[1 + baseIndex]);
-        printf("message[0]: %u\n", message[0 + baseIndex]);
+        printf("%f\n", values[i]);
+        //printf("before float to bits\n");
+        //float bits = values[i];
+        unsigned long bits = *reinterpret_cast<unsigned long*>(&values[i]);
+        //int bits = float_to_bits(((float)values[i]));
+        ///printf("float to bits: %ld", bits);
+        /*printf("FloatPacketType::message[3]: %u\n", FloatPacketType::message[3]);
+        printf("FloatPacketType::message[2]: %u\n", FloatPacketType::message[2]);
+        printf("FloatPacketType::message[1]: %u\n", FloatPacketType::message[1]);
+        printf("FloatPacketType::message[0]: %u\n", FloatPacketType::message[0]);*/
+        //shifting has to do with byte position in relation to an int which is 4 bytes
+        FloatPacketType::message[0 + baseIndex] = (unsigned char)(bits & 0xFF);
+        FloatPacketType::message[1 + baseIndex] = (unsigned char)(bits >> 8 & 0xFF);
+        FloatPacketType::message[2 + baseIndex] = (unsigned char)(bits >> 16 & 0xFF);
+        FloatPacketType::message[3 + baseIndex] = (unsigned char)(bits >> 24 & 0xFF);
+        /*printf("after shift\n");
+        printf("FloatPacketType::message[3]: %u\n", FloatPacketType::message[3 + baseIndex]);
+        printf("FloatPacketType::message[2]: %u\n", FloatPacketType::message[2 + baseIndex]);
+        printf("FloatPacketType::message[1]: %u\n", FloatPacketType::message[1 + baseIndex]);
+        printf("FloatPacketType::message[0]: %u\n", FloatPacketType::message[0 + baseIndex]);*/
     } 
-    return message;
+    return FloatPacketType::message;
 }
 
 /**
@@ -166,12 +178,24 @@ float FloatPacketType::intBitsToFloat(int32_t int_value)
 
 /**
  * floatToIntBits
+ * TODO: this issue??
 */
 unsigned FloatPacketType::float_to_bits(float x)
 {
+    //use union construction to convert
+    /*union
+    {
+        float input; // assumes sizeof(float) == sizeof(int)
+        int   output;
+    } data;
+
+    data.input = x;
+
+    std::bitset<sizeof(float) * CHAR_BIT> bits(data.output);*/
     unsigned y;
     memcpy(&y, &x, 4);
     return y;
+    //return bits;
 }
 
 bool FloatPacketType::sendOk(){

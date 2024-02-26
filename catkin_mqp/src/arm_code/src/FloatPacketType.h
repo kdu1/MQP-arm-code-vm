@@ -10,9 +10,10 @@ class FloatPacketType{
         
     protected:
         //ByteOrder be = ByteOrder.LITTLE_ENDIAN;//don't think I need it?
-        int numberOfBytesPerValue = 4;
+      
   
     public:
+        int numberOfBytesPerValue = 4;
         std::vector<float> downstream;
         std::vector<float> upstream;
         bool oneShotMode = false;
@@ -22,8 +23,6 @@ class FloatPacketType{
         bool started = false;
         int packetSize = 64;
         int numValues = packetSize / 4 - 1;
-
-    public:
 
     FloatPacketType(int id, int size);
     

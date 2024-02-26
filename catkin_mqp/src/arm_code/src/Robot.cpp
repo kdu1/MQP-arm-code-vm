@@ -80,7 +80,7 @@ class Robot{
         int MAX = 3;
         //SimpleComsDevice a;
         //ros::Subscriber pos_subscriber_;
-        //ros::Publisher _servo_jp_publisher;
+        //ros::Publisher _servo_jp_publisher
         SimpleComsDevice* s;
 
     /**
@@ -392,49 +392,6 @@ class Robot{
 
 
 
-    /**
-     * write converting it to the correct packet thing format
-   /**
-    void writeFloats(int id, std::vector<Complex> values) {
-        writeFloats(id, values, true);
-    }
-    
-
-    //okay so there's a connect method that calls a process method that calls the actual write using
-    //the pollingpacket 
-    void writeFloats(int id, std::vector<Complex> values, bool polling) {
-        if (getPacket(id) == NULL) {
-            FloatPacketType pt = FloatPacketType(id, 64);
-            if (!polling.booleanValue()){
-                pt.oneShotMode(); 
-            }
-            //why does the thing not have braces??
-            for (int i = 0; i < (pt.getDownstream()).size() && i < values.size(); i++){
-                pt.getDownstream()[i] = values[i];
-                addPollingPacket(pt);
-            }
-            try {
-                Thread.sleep(10L);
-            } catch (const std::exception& e) {
-                printf("writeFloats thread sleep exception: ");
-                printf(e.what());
-            } 
-        } else {
-            for (int j = 0; j < this->pollingQueue.size(); j++) {
-                PacketType pt = this->pollingQueue.get(j);
-                if (FloatPacketType.class.isInstance(pt) && 
-                    pt.idOfCommand == id) {
-                    for (int i = 0; i < (pt.getDownstream()).length && i < values.size(); i++){
-                        pt.getDownstream()[i] = (float)values[i]; 
-                    }
-                    if (!polling.booleanValue()){
-                        pt.oneShotMode(); 
-                    }
-                    return;
-                } 
-            } 
-        } 
-    }*/
 
     /**
      * writes information, calls writeFloats method from SimpleComsDevice
@@ -541,9 +498,9 @@ class Robot{
 
         std::vector<Complex> packet(15); // creates an empty 15x1 array to write to the robot
         //TODO: according to the reference this is wrong - see how 0 and 1 are filled here
-        packet[0] = 1848; //ID
-        packet[1] = 10000;//Duration of movement: TODO: HARDCODED, making it extra slow just in case
-        packet[2] = 0.0; // Interpolation mode: 0=linear, 1=sinusoidal; bypasses interpolation
+        packet[0] = Complex(1848); //ID
+        packet[1] = Complex(10000);//Duration of movement: TODO: HARDCODED, making it extra slow just in case
+        packet[2] = Complex(0.0); // Interpolation mode: 0=linear, 1=sinusoidal; bypasses interpolation
         packet[3] = array[0]; // Motor 1 target position
         packet[4] = array[1]; // Motor 2 target position
         packet[5] = array[2]; // Motor 3 target position
@@ -950,8 +907,8 @@ class Robot{
 
     //need to exit
     void stop(){
-        //ROS_INFO("Stopping...");
-         s->disconnectDeviceImp();
+        printf("Stopping...\n");
+        s->disconnectDeviceImp();
     }
 
 };
@@ -991,7 +948,7 @@ class Traj_Planner{
 /**
  * main ROS function
  * Starts ros, calls servo_jp and pickAndPlace to move arm
- * TODO: snap ros stuff?
+ * TODO: snap ros stuff
 */
 int main(int argc, char **argv)
 {
@@ -1017,12 +974,16 @@ int main(int argc, char **argv)
     //ROS_INFO("ROS robot is now started...");
 
     //move arm
-    //TODO: HARDCODED these
+    
+    CArray in = {std::complex<float>(0,0), std::complex<float>(0,0), std::complex<float>(0,0)};
+    robot.servo_jp(in);
+    printf("servo_jp done\n");
+    robot.stop();
+
+    //Home position
     float x = 0;//desPos[0];
     float y = 1;//desPos[1];
     float z = 0;//desPos[2];
-    CArray in = {std::complex<float>(0,0), std::complex<float>(0,0), std::complex<float>(0,0)};
-    robot.servo_jp(in);
     //std::this_thread::sleep_for(std::chrono::seconds(1));
     //robot.pickAndPlace(x, y, z, (float)1.0); //test simple servo jp before doing this
 

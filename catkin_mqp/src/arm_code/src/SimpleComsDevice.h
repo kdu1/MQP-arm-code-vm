@@ -194,7 +194,7 @@ class SimpleComsDevice {
      * @param pollingQueue
     */
      void setPollingQueue(std::vector<FloatPacketType> pollingQueuein){
-        pollingQueue = pollingQueuein;
+        this->pollingQueue = pollingQueuein;
     }
 
     
