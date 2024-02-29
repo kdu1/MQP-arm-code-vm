@@ -154,6 +154,7 @@ arm_code_EXTERNAL_OBJECTS =
 /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: arm_code/CMakeFiles/arm_code.dir/src/rt_nonfinite.cpp.o
 /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: arm_code/CMakeFiles/arm_code.dir/src/ik3001.cpp.o
 /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: arm_code/CMakeFiles/arm_code.dir/build.make
+/home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/libhidapi_hidraw.so
 /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: /opt/ros/noetic/lib/libroscpp.so
 /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: /usr/lib/x86_64-linux-gnu/libpthread.so
 /home/vboxuser/MQP-arm-code-vm/catkin_mqp/devel/lib/arm_code/arm_code: /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0

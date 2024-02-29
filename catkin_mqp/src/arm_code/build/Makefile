@@ -246,6 +246,19 @@ geometry_msgs_generate_messages_lisp/fast:
 .PHONY : geometry_msgs_generate_messages_lisp/fast
 
 #=============================================================================
+# Target rules for targets named hidapi_hidraw
+
+# Build rule for target.
+hidapi_hidraw: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hidapi_hidraw
+.PHONY : hidapi_hidraw
+
+# fast build rule for target.
+hidapi_hidraw/fast:
+	$(MAKE) -f CMakeFiles/hidapi_hidraw.dir/build.make CMakeFiles/hidapi_hidraw.dir/build
+.PHONY : hidapi_hidraw/fast
+
+#=============================================================================
 # Target rules for targets named geometry_msgs_generate_messages_py
 
 # Build rule for target.
@@ -622,6 +635,33 @@ gtest/fast:
 	$(MAKE) -f gtest/googletest/CMakeFiles/gtest.dir/build.make gtest/googletest/CMakeFiles/gtest.dir/build
 .PHONY : gtest/fast
 
+hidapi/linux/hid.o: hidapi/linux/hid.c.o
+
+.PHONY : hidapi/linux/hid.o
+
+# target to build an object file
+hidapi/linux/hid.c.o:
+	$(MAKE) -f CMakeFiles/hidapi_hidraw.dir/build.make CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.o
+.PHONY : hidapi/linux/hid.c.o
+
+hidapi/linux/hid.i: hidapi/linux/hid.c.i
+
+.PHONY : hidapi/linux/hid.i
+
+# target to preprocess a source file
+hidapi/linux/hid.c.i:
+	$(MAKE) -f CMakeFiles/hidapi_hidraw.dir/build.make CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.i
+.PHONY : hidapi/linux/hid.c.i
+
+hidapi/linux/hid.s: hidapi/linux/hid.c.s
+
+.PHONY : hidapi/linux/hid.s
+
+# target to generate assembly for a file
+hidapi/linux/hid.c.s:
+	$(MAKE) -f CMakeFiles/hidapi_hidraw.dir/build.make CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.s
+.PHONY : hidapi/linux/hid.c.s
+
 src/FloatPacketType.o: src/FloatPacketType.cpp.o
 
 .PHONY : src/FloatPacketType.o
@@ -802,6 +842,7 @@ help:
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... std_msgs_generate_messages_eus"
 	@echo "... geometry_msgs_generate_messages_lisp"
+	@echo "... hidapi_hidraw"
 	@echo "... geometry_msgs_generate_messages_py"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... geometry_msgs_generate_messages_cpp"
@@ -832,6 +873,9 @@ help:
 	@echo "... gmock"
 	@echo "... gtest_main"
 	@echo "... gtest"
+	@echo "... hidapi/linux/hid.o"
+	@echo "... hidapi/linux/hid.i"
+	@echo "... hidapi/linux/hid.s"
 	@echo "... src/FloatPacketType.o"
 	@echo "... src/FloatPacketType.i"
 	@echo "... src/FloatPacketType.s"

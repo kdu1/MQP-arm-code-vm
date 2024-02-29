@@ -49,7 +49,8 @@
 						31,
 						32,
 						33,
-						34
+						34,
+						35
 					]
 				},
 				{
@@ -146,7 +147,8 @@
 						31,
 						32,
 						33,
-						34
+						34,
+						35
 					]
 				},
 				{
@@ -197,7 +199,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "arm_code::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-arm_code-Debug-1fb4b0989ca14b1bfea1.json",
+					"jsonFile" : "target-arm_code-Debug-2b262849442edc66419e.json",
 					"name" : "arm_code",
 					"projectIndex" : 0
 				},
@@ -284,6 +286,13 @@
 					"jsonFile" : "target-gtest_main-Debug-937cf8a4a50504df68d2.json",
 					"name" : "gtest_main",
 					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hidapi_hidraw::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hidapi_hidraw-Debug-f88b51ee07ad5c1e3f01.json",
+					"name" : "hidapi_hidraw",
+					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,

@@ -124,14 +124,14 @@ catkin_package(
 include_directories(
   include
   hidapi/hidapi
+#  hidapi_hidraw
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-#add_library(${PROJECT_NAME}
-#   SHARED src/AbstractSimpleComsDevice.cpp
-#   src/FloatPacketType.cpp
-#)
+add_library(hidapi_hidraw
+   hidapi/linux/hid.c
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -147,7 +147,7 @@ add_executable(arm_code src/Robot.cpp
        src/cubic_traj.cpp
        src/rt_nonfinite.cpp
        src/ik3001.cpp
-       #hidapi/linux/hid.c
+       #src/ROSWrapper.cpp
        )
 
 ## Rename C++ executable without prefix
@@ -162,7 +162,8 @@ add_executable(arm_code src/Robot.cpp
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
-   hidapi-libusb
+   hidapi_hidraw
+   udev
    ${catkin_LIBRARIES}
 )
 

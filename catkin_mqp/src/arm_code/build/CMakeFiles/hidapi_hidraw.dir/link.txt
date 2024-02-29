@@ -1,0 +1,1 @@
+/usr/bin/gcc -fPIC -g  -shared -Wl,-soname,libhidapi_hidraw.so -o devel/lib/libhidapi_hidraw.so CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.o 

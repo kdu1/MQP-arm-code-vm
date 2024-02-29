@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "devel/lib/arm_code/arm_code"
+			"path" : "devel/lib/libhidapi_hidraw.so"
 		}
 	],
 	"backtrace" : 1,
@@ -10,7 +10,7 @@
 	{
 		"commands" : 
 		[
-			"add_executable",
+			"add_library",
 			"add_definitions",
 			"include",
 			"find_package",
@@ -35,7 +35,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 144,
+				"line" : 132,
 				"parent" : 0
 			},
 			{
@@ -126,7 +126,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g  "
+					"fragment" : "-g -fPIC  "
 				}
 			],
 			"defines" : 
@@ -142,6 +142,9 @@
 				{
 					"backtrace" : 15,
 					"define" : "ROS_PACKAGE_NAME=\"arm_code\""
+				},
+				{
+					"define" : "hidapi_hidraw_EXPORTS"
 				}
 			],
 			"includes" : 
@@ -163,112 +166,27 @@
 					"path" : "/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
 				}
 			],
-			"language" : "CXX",
+			"language" : "C",
 			"sourceIndexes" : 
 			[
-				0,
-				1,
-				2,
-				3,
-				4,
-				5
+				0
 			]
 		}
 	],
-	"id" : "arm_code::@6890427a1f51a3e7e1df",
+	"id" : "hidapi_hidraw::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-g",
+				"fragment" : "",
 				"role" : "flags"
-			},
-			{
-				"fragment" : "-rdynamic",
-				"role" : "flags"
-			},
-			{
-				"fragment" : "-Wl,-rpath,/opt/ros/noetic/lib",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "-lhidapi-libusb",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/libroscpp.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "-lpthread",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/librosconsole.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/librosconsole_log4cxx.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/librosconsole_backend_interface.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "-llog4cxx",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/libxmlrpcpp.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/libroscpp_serialization.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/librostime.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/opt/ros/noetic/lib/libcpp_common.so",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4",
-				"role" : "libraries"
 			}
 		],
-		"language" : "CXX"
+		"language" : "C"
 	},
-	"name" : "arm_code",
-	"nameOnDisk" : "arm_code",
+	"name" : "hidapi_hidraw",
+	"nameOnDisk" : "libhidapi_hidraw.so",
 	"paths" : 
 	{
 		"build" : ".",
@@ -280,12 +198,7 @@
 			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
-				0,
-				1,
-				2,
-				3,
-				4,
-				5
+				0
 			]
 		}
 	],
@@ -294,39 +207,9 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/Robot.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/SimpleComsDevice.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/FloatPacketType.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/cubic_traj.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/rt_nonfinite.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/ik3001.cpp",
+			"path" : "hidapi/linux/hid.c",
 			"sourceGroupIndex" : 0
 		}
 	],
-	"type" : "EXECUTABLE"
+	"type" : "SHARED_LIBRARY"
 }

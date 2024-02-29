@@ -47,6 +47,7 @@ void FloatPacketType::setDownstream(std::vector<float> downstream) {
 FloatPacketType::FloatPacketType(int id, int size) {
     //super(id)
     //printf("FloatPacketType constructor");
+    FloatPacketType::idOfCommand = id;
     FloatPacketType::packetSize = size;
     FloatPacketType::numberOfBytesPerValue = 4;
     FloatPacketType::numValues = packetSize / numberOfBytesPerValue - 4 / numberOfBytesPerValue; // 

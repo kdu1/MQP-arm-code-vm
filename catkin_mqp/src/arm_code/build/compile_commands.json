@@ -30,6 +30,11 @@
   "file": "/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/src/ik3001.cpp"
 },
 {
+  "directory": "/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/build",
+  "command": "/usr/bin/gcc -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"arm_code\\\" -Dhidapi_hidraw_EXPORTS -I/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/include -I/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/hidapi/hidapi -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp  -g -fPIC   -o CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.o   -c /home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/hidapi/linux/hid.c",
+  "file": "/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/hidapi/linux/hid.c"
+},
+{
   "directory": "/home/vboxuser/MQP-arm-code-vm/catkin_mqp/src/arm_code/build/gtest/googlemock",
   "command": "/usr/bin/g++  -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_main_EXPORTS -isystem /usr/src/googletest/googlemock/include -isystem /usr/src/googletest/googlemock -isystem /usr/src/googletest/googletest/include -isystem /usr/src/googletest/googletest  -g -fPIC   -Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -DGTEST_HAS_PTHREAD=1 -std=c++11 -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /usr/src/googletest/googlemock/src/gmock_main.cc",
   "file": "/usr/src/googletest/googlemock/src/gmock_main.cc"

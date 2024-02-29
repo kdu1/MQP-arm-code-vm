@@ -154,6 +154,7 @@ devel/lib/arm_code/arm_code: CMakeFiles/arm_code.dir/src/cubic_traj.cpp.o
 devel/lib/arm_code/arm_code: CMakeFiles/arm_code.dir/src/rt_nonfinite.cpp.o
 devel/lib/arm_code/arm_code: CMakeFiles/arm_code.dir/src/ik3001.cpp.o
 devel/lib/arm_code/arm_code: CMakeFiles/arm_code.dir/build.make
+devel/lib/arm_code/arm_code: devel/lib/libhidapi_hidraw.so
 devel/lib/arm_code/arm_code: /opt/ros/noetic/lib/libroscpp.so
 devel/lib/arm_code/arm_code: /usr/lib/x86_64-linux-gnu/libpthread.so
 devel/lib/arm_code/arm_code: /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0

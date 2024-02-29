@@ -46,7 +46,7 @@ typedef std::valarray<Complex> CArray;
 /**
  * Constructor
 */
-SimpleComsDevice::SimpleComsDevice(const char* path){
+SimpleComsDevice::SimpleComsDevice(){
     printf("SimpleComsDevice Constructor\n");
     fflush( stdout );
     //const wchar_t* serial = L"F09D5B6E5337524651202020FF083841";
@@ -157,7 +157,7 @@ void SimpleComsDevice::print_devices_with_descriptor(struct hid_device_info *cur
 	printf("\n");
 }*/
 
-std::unordered_map<int, std::vector<Runnable>> events;
+//std::unordered_map<int, std::vector<Runnable>> events;
     
 /*std::vector<FloatPacketType> pollingQueue;
 
@@ -177,6 +177,8 @@ void SimpleComsDevice::addPollingPacket(FloatPacketType packet) {
     fflush( stdout );
     printf("ID: %d\n", ID);
     fflush( stdout );
+    
+    //printf("pollingQueue size: %d", SimpleComsDevice::getPollingQueue().size());
     if(SimpleComsDevice::getPollingQueue().size() == 0){
         return nullptr;
     }
@@ -240,7 +242,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         pt.setDownstream(newdownstream);
         SimpleComsDevice::addPollingPacket(pt); //size added here will be size of FloatPacketType called in process()
         try {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         } catch (const std::exception& e) {
             printf("writeFloats thread sleep exception: ");
             fflush( stdout );
@@ -283,29 +285,32 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
  std::vector<float> SimpleComsDevice::readFloats(int id) {
     printf("readFloats\n");
     fflush( stdout );
-    if (getPacket(id) == nullptr) {//packets are assigned an id related to the purpose, simplepacketcoms manages them
-        //printf("id null");
+    if (getPacket(id) == nullptr) {//packets are assigned an id related to the purpose, SimplePacketComs manages them
+        printf("id null\n");
+        fflush(stdout);
         FloatPacketType fl = FloatPacketType(id, 64);
         SimpleComsDevice::addPollingPacket(fl);
         try {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         } catch (const std::exception& e) {
             printf("readFloats thread sleep exception: ");
             fflush( stdout );
-            printf(e.what());
+            std::cout << e.what() << std::endl;
             fflush( stdout );
         } 
     } 
 
+    //TODO: seems like there is a threading or timing issue where process() is called before this which causes this to run after process
+    //why is int not finding the packet though?
     //printf("readFloats");
     printf("before getPacket id: %d\n", id);
     fflush( stdout );
-    FloatPacketType* pt = getPacket(id);
+    FloatPacketType* pt = SimpleComsDevice::getPacket(id);
     //printf("before getUpstream stuff");
     if(pt == nullptr){
         printf("null");
         fflush( stdout );
-        //TODO: I actually don't know what to do in this case
+        //TODO: should not be going here
         throw std::runtime_error("FloatPacketType null");
     }
     std::vector<float> values((pt->getUpstream()).size(), 0);
@@ -331,6 +336,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
             (unsigned char)(bytes[1]) << 16 |
             (unsigned char)(bytes[2]) << 8 |
             (unsigned char)(bytes[3]));
+    printf("getId, %d\n", id);
     return id; //ittle endian reminder
 }
 
@@ -359,7 +365,14 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
                     fflush( stdout );
                     //if read result greater than or equal to packet upstream size, do some timeout resolving packet managing
                     if (static_cast<std::vector<float>::size_type>(readint) >= (packet.getUpstream()).size()) {
+                        printf("greater than upstream size\n");
+                        fflush(stdout);
                         int ID = SimpleComsDevice::getId(message); // if current packet being processed matches current input id 
+                        printf("ID : %d\n", ID);
+                        fflush(stdout);
+                        printf("%d\n", packet.idOfCommand);
+                        fflush(stdout);
+                        //TODO: why is this needed?
                         if (ID == packet.idOfCommand) {
                             if (SimpleComsDevice::isTimedOut){
                                 printf("Timeout resolved %d\n", ID); 
@@ -405,8 +418,11 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
         }
         packet.setUpstream(newupstream);
     } 
+
+
+    //currently unusued:
     //if there are packets that were added to events, run each one
-    if (events.find(packet.idOfCommand) == events.end()){
+    /*if (events.find(packet.idOfCommand) == events.end()){
         printf("going through events\n");
         fflush(stdout);
         //Runs runnable
@@ -439,7 +455,8 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
                 }  
             }
         }  */
-    }
+    /*}*/
+
     } catch (const std::exception& e) {
         printf("exception: ");
         printf(e.what());
@@ -494,7 +511,7 @@ void SimpleComsDevice::writeFloats(int id, std::vector<Complex> values, bool pol
                 fflush( stdout );
             }
             try {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             } catch (std::exception& e1) {
                 std::cout << e1.what() << std::endl;
                 //printf(e1.what());

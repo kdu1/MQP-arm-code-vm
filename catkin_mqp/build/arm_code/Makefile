@@ -102,6 +102,17 @@ install/local/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # Special rule for the target test
 test:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
@@ -123,17 +134,6 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -363,6 +363,21 @@ rosgraph_msgs_generate_messages_nodejs/fast:
 .PHONY : rosgraph_msgs_generate_messages_nodejs/fast
 
 # Convenience name for target.
+arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+.PHONY : arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+
+# Convenience name for target.
+roscpp_generate_messages_eus: arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+
+.PHONY : roscpp_generate_messages_eus
+
+# fast build rule for target.
+roscpp_generate_messages_eus/fast:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/build.make arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/build
+.PHONY : roscpp_generate_messages_eus/fast
+
+# Convenience name for target.
 arm_code/CMakeFiles/sensor_msgs_generate_messages_eus.dir/rule:
 	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/sensor_msgs_generate_messages_eus.dir/rule
 .PHONY : arm_code/CMakeFiles/sensor_msgs_generate_messages_eus.dir/rule
@@ -421,36 +436,6 @@ sensor_msgs_generate_messages_nodejs: arm_code/CMakeFiles/sensor_msgs_generate_m
 sensor_msgs_generate_messages_nodejs/fast:
 	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/build.make arm_code/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/build
 .PHONY : sensor_msgs_generate_messages_nodejs/fast
-
-# Convenience name for target.
-arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule:
-	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule
-.PHONY : arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule
-
-# Convenience name for target.
-sensor_msgs_generate_messages_py: arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule
-
-.PHONY : sensor_msgs_generate_messages_py
-
-# fast build rule for target.
-sensor_msgs_generate_messages_py/fast:
-	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/build.make arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/build
-.PHONY : sensor_msgs_generate_messages_py/fast
-
-# Convenience name for target.
-arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule:
-	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
-.PHONY : arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
-
-# Convenience name for target.
-geometry_msgs_generate_messages_py: arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
-
-.PHONY : geometry_msgs_generate_messages_py
-
-# fast build rule for target.
-geometry_msgs_generate_messages_py/fast:
-	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
-.PHONY : geometry_msgs_generate_messages_py/fast
 
 # Convenience name for target.
 arm_code/CMakeFiles/std_msgs_generate_messages_py.dir/rule:
@@ -513,6 +498,51 @@ geometry_msgs_generate_messages_eus/fast:
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
 # Convenience name for target.
+arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule
+.PHONY : arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule
+
+# Convenience name for target.
+sensor_msgs_generate_messages_py: arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/rule
+
+.PHONY : sensor_msgs_generate_messages_py
+
+# fast build rule for target.
+sensor_msgs_generate_messages_py/fast:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/build.make arm_code/CMakeFiles/sensor_msgs_generate_messages_py.dir/build
+.PHONY : sensor_msgs_generate_messages_py/fast
+
+# Convenience name for target.
+arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
+.PHONY : arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
+
+# Convenience name for target.
+geometry_msgs_generate_messages_py: arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
+
+.PHONY : geometry_msgs_generate_messages_py
+
+# fast build rule for target.
+geometry_msgs_generate_messages_py/fast:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make arm_code/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
+.PHONY : geometry_msgs_generate_messages_py/fast
+
+# Convenience name for target.
+arm_code/CMakeFiles/hidapi_hidraw.dir/rule:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/hidapi_hidraw.dir/rule
+.PHONY : arm_code/CMakeFiles/hidapi_hidraw.dir/rule
+
+# Convenience name for target.
+hidapi_hidraw: arm_code/CMakeFiles/hidapi_hidraw.dir/rule
+
+.PHONY : hidapi_hidraw
+
+# fast build rule for target.
+hidapi_hidraw/fast:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/hidapi_hidraw.dir/build.make arm_code/CMakeFiles/hidapi_hidraw.dir/build
+.PHONY : hidapi_hidraw/fast
+
+# Convenience name for target.
 arm_code/CMakeFiles/arm_code.dir/rule:
 	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/arm_code.dir/rule
 .PHONY : arm_code/CMakeFiles/arm_code.dir/rule
@@ -542,20 +572,32 @@ rosgraph_msgs_generate_messages_cpp/fast:
 	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build.make arm_code/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/build
 .PHONY : rosgraph_msgs_generate_messages_cpp/fast
 
-# Convenience name for target.
-arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule:
-	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f CMakeFiles/Makefile2 arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule
-.PHONY : arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+hidapi/linux/hid.o: hidapi/linux/hid.c.o
 
-# Convenience name for target.
-roscpp_generate_messages_eus: arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/rule
+.PHONY : hidapi/linux/hid.o
 
-.PHONY : roscpp_generate_messages_eus
+# target to build an object file
+hidapi/linux/hid.c.o:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/hidapi_hidraw.dir/build.make arm_code/CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.o
+.PHONY : hidapi/linux/hid.c.o
 
-# fast build rule for target.
-roscpp_generate_messages_eus/fast:
-	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/build.make arm_code/CMakeFiles/roscpp_generate_messages_eus.dir/build
-.PHONY : roscpp_generate_messages_eus/fast
+hidapi/linux/hid.i: hidapi/linux/hid.c.i
+
+.PHONY : hidapi/linux/hid.i
+
+# target to preprocess a source file
+hidapi/linux/hid.c.i:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/hidapi_hidraw.dir/build.make arm_code/CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.i
+.PHONY : hidapi/linux/hid.c.i
+
+hidapi/linux/hid.s: hidapi/linux/hid.c.s
+
+.PHONY : hidapi/linux/hid.s
+
+# target to generate assembly for a file
+hidapi/linux/hid.c.s:
+	cd /home/vboxuser/MQP-arm-code-vm/catkin_mqp/build && $(MAKE) -f arm_code/CMakeFiles/hidapi_hidraw.dir/build.make arm_code/CMakeFiles/hidapi_hidraw.dir/hidapi/linux/hid.c.s
+.PHONY : hidapi/linux/hid.c.s
 
 src/FloatPacketType.o: src/FloatPacketType.cpp.o
 
@@ -742,22 +784,26 @@ help:
 	@echo "... roscpp_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
+	@echo "... rebuild_cache"
+	@echo "... roscpp_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_lisp"
 	@echo "... sensor_msgs_generate_messages_nodejs"
-	@echo "... sensor_msgs_generate_messages_py"
-	@echo "... geometry_msgs_generate_messages_py"
 	@echo "... std_msgs_generate_messages_py"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
+	@echo "... sensor_msgs_generate_messages_py"
+	@echo "... geometry_msgs_generate_messages_py"
+	@echo "... hidapi_hidraw"
 	@echo "... arm_code"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
 	@echo "... test"
 	@echo "... edit_cache"
-	@echo "... roscpp_generate_messages_eus"
-	@echo "... rebuild_cache"
+	@echo "... hidapi/linux/hid.o"
+	@echo "... hidapi/linux/hid.i"
+	@echo "... hidapi/linux/hid.s"
 	@echo "... src/FloatPacketType.o"
 	@echo "... src/FloatPacketType.i"
 	@echo "... src/FloatPacketType.s"

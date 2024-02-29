@@ -92,7 +92,7 @@ class SimpleComsDevice {
     public:
         bool connected;
         bool virtualv = false;
-        int readTimeout = 100000;
+        int readTimeout = 1000;
         bool isTimedOut = false;
     
     // A Functor
@@ -137,7 +137,7 @@ class SimpleComsDevice {
     /**
     * Constructor
     */
-    SimpleComsDevice(const char* path);
+    SimpleComsDevice();
 
     
 
@@ -158,6 +158,7 @@ class SimpleComsDevice {
     
     void addPollingPacket(FloatPacketType packet) {
         printf("addPollingPacket\n");
+        printf("packet idOfCommand: %d\n", packet.idOfCommand);
         if (!(getPacket((int)packet.idOfCommand) == nullptr)){
             printf("Only one packet of a given ID is allowed to poll. Add an event to receive data");
             throw("Only one packet of a given ID is allowed to poll. Add an event to receive data"); 
@@ -171,7 +172,7 @@ class SimpleComsDevice {
     */
      std::vector<FloatPacketType> getPollingQueue(){
         //ROS_INFO("pollingqueue");
-        return pollingQueue;
+        return this->pollingQueue;
     }
 
     /**
@@ -376,6 +377,7 @@ class Runnable
         
             s.disconnectDeviceImp();
             printf("SimplePacketComs disconnect");
+            fflush(stdout);
             return 0;
         };
 

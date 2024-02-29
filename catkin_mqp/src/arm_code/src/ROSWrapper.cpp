@@ -1,7 +1,11 @@
-include <ros/ros.h>
-#include "Robot.h" //pray the red lines are just there
+#include <ros/ros.h>
+#include "Robot.h"
+#include "SimpleComsDevice.h"
 #include <memory>
-#include <sensor_msgs/JointState.h>
+//#include <sensor_msgs/JointState.h>
+#include <iostream>
+#include <std_msgs/String.h>
+#include <std_srvs/Trigger.h>
 typedef std::complex<float> Complex;
 typedef std::valarray<Complex> CArray;
 
@@ -10,12 +14,10 @@ class ROSWrapperArm
 {
 private:
     std::unique_ptr<Robot> robot;
-    //ros::Subscriber write_subscriber_;
-    //ros::Subscriber read_subscriber_;
-    ros::Subscriber<sensor_msgs::JointState> read_sub("controlInput", readCallback);
+    ros::Subscriber read_sub("shown_personality", 1000, ROSWrapperArm::personalityCallback);
     ros::Subscriber personality_subscriber_;
-    ros::Publisher _servo_jp_publisher;
-    ros::Publisher _arm_state_publisher_;
+    //ros::Publisher _servo_jp_publisher;
+    ros::Publisher _arm_state_publisher;
 
     std_msgs::String state;
 
@@ -26,14 +28,18 @@ private:
 //okay nvm so it has the hiddevice(easyhid) and write stuff in a seperate file (controller) from the one doing the rossing (arm)
 //seems like instead of doing a wrapper it needs to be in the code
 //and publish JointState messages
-//should I test this with gazebo or is there even time
 
 public:
-    ROSWrapperArm()
+    /*explicit ROSWrapperArm();
+    ROSWrapperArm(const ROSWrapperArm&) = delete;
+    ROSWrapperArm& operator=(const ROSWrapperArm&) = delete;
+    ~ROSWrapperArm() = default;*/
+
+    ROSWrapperArm(ros::NodeHandle *nh, SimpleComsDevice* s)
     {
-        
-        pos_subscriber_ = nh->subscribe(read_sub);
-        personality_subscriber_ = nh->subscribe(shown_personality);//subscribe to personality node
+        this->robot = std::unique_ptr<Robot>(new Robot(s));
+        //pos_subscriber_ = nh->subscribe(read_sub);
+        personality_subscriber_ = nh->subscribe("shown_personality");//subscribe to personality node
 
         
         /*
@@ -44,18 +50,18 @@ public:
             "read", 10, &ROSWrapperArm::callbackRead, this);*/
 
         //servo_jp and pickAndPlace should be publishers
-        sensor_msgs::JointState servo_jp_state;
-        _servo_jp_publisher = nh->advertise<sensor_msgs::JointState>("servo_jp", servo_jp_state);
+        //sensor_msgs::JointState servo_jp_state;
+        //_servo_jp_publisher = nh->advertise<sensor_msgs::JointState>("servo_jp", servo_jp_state);
 
-        state = "stopped"
-        _arm_state_publisher = nh->advertise<sensor_msgs::JointState>("arm_code", state);//publishes whether arm is in the process of moving
+        state.data = "Finished";
+        _arm_state_publisher = nh->advertise<std_msgs::String>("shown_personality", state);//publishes whether arm is in the process of moving
 
 
 
     }
 
     //don't really need this??
-    void publishServoJp(const ros::TimerEvent &event)
+    /*void publishServoJp(const ros::TimerEvent &event)
     {
         sensor_msgs::JointState servo_jp_state;
         CArray servo_jp_res = servo_jp({0, 0, 0});// TODO: hardcoded, don't know where to get those values
@@ -69,26 +75,118 @@ public:
     {
         _arm_state_publisher.publish(state);
 
-    }
+    }*/
 
-
+    /**
+     * disconnects from hidapi and stops device and code
+    */
     void stop()
     {
-        robot->scddisconnect(); //just in case, might move it to main
+        robot->scddisconnect(); //TODO: may be redundant
         robot->stop();
     }
 
     void personalityCallback(const std_msgs::String mood){
-        if(strcmp(mood, "smirk") == 0){
-            //set state to moving
-            state = "moving";
+        //call pose based off of message from shown_personality
+        if(mood.data.compare("smirk") == 0){
             //call the "smirk" pose
+            smirk();
         }
-        //and then do the rest of the emotions
+        else if(mood.data.compare("smile") == 0){
+            smile();
+        }
+        else if(mood.data.compare("neutral")  == 0){
+            neutral();
+        }
+        else if(mood.data.compare("confusion") == 0){
+            confusion();
+        }
+        else if(mood.data.compare("surprised") == 0){   
+            surprised();
+        }
+        else{
+            std::runtime_error("recieved emotion invalid");
+        }
     }
 
     void smirk(){
+        //set state to In progress
+        state.data = "In progress";
+        //publish state
+        _arm_state_publisher.publish(state);
+
+        //run servo jp based off of angle values
+        CArray in = {Complex(0), Complex(0), Complex(0)};
+        robot->servo_jp(in);
+        
+        //set state to Finished
+        state.data = "Finished";
+        //publish state
+        _arm_state_publisher.publish(state);
+    }
+
+    void smile(){
+        //set state to In progress
+        state.data = "In progress";
+        _arm_state_publisher.publish(state);
+
+        //run servo jp based off of angle values
+        CArray in = {Complex(0), Complex(0), Complex(0)};
+        robot->servo_jp(in);
         //call pickAndPlace and/or servo_jp to go to the appropriate place
+
+        //set state to Finished
+        state.data = "Finished";
+        //publish state
+        _arm_state_publisher.publish(state);
+    }
+
+    void neutral(){
+        //set state to In progress
+        state.data = "In progress";
+        _arm_state_publisher.publish(state);
+
+        //run servo jp based off of angle values
+        CArray in = {Complex(0), Complex(0), Complex(0)};
+        robot->servo_jp(in);
+        //call pickAndPlace and/or servo_jp to go to the appropriate place
+
+        //set state to Finished
+        state.data = "Finished";
+        //publish state
+        _arm_state_publisher.publish(state);
+    }
+
+    void confusion(){
+        //set state to In progress
+        state.data = "In progress";
+        _arm_state_publisher.publish(state);
+
+        //run servo jp based off of angle values
+        CArray in = {Complex(0), Complex(0), Complex(0)};
+        robot->servo_jp(in);
+        //call pickAndPlace and/or servo_jp to go to the appropriate place
+
+        //set state to Finished
+        state.data = "Finished";
+        //publish state
+        _arm_state_publisher.publish(state);
+    }
+
+    void surprised(){
+        //set state to In progress
+        state.data = "In progress";
+        _arm_state_publisher.publish(state);
+
+        //run servo jp based off of angle values
+        CArray in = {Complex(0), Complex(0), Complex(0)};
+        robot->servo_jp(in);
+        //call pickAndPlace and/or servo_jp to go to the appropriate place
+
+        //set state to Finished
+        state.data = "Finished";
+        //publish state
+        _arm_state_publisher.publish(state);
     }
 
     //void readCallback(const sensor_msgs::JointState& servo_states){
@@ -147,7 +245,8 @@ int main(int argc, char **argv)
     ros::AsyncSpinner spinner(4);
     spinner.start();
 
-    ROSWrapperArm ros_driver_wrapper(&nh);
+    SimpleComsDevice s;
+    ROSWrapperArm ros_driver_wrapper(&nh, &s);
     ROS_INFO("ROS driver is now started");
     
     ros::waitForShutdown();

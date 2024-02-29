@@ -1,5 +1,5 @@
 //Robot.cpp
-//#include <ros/ros.h>
+#include <ros/ros.h>
 //#include "iostream"
 #include <vector>
 #include <thread>
@@ -19,6 +19,7 @@
 //#include <sensor_msgs/JointState.h>
 #include "ik3001.h"
 #include "cubic_traj.h"
+#include "Robot.h"
 typedef std::complex<float> Complex;
 typedef std::valarray<Complex> CArray;
 
@@ -52,7 +53,6 @@ struct hid_device_;
 }*/
 
 //device:
-//from test.c
 // Open the device using the VID, PID,
 // and optionally the Serial number.
 
@@ -71,64 +71,35 @@ hid_device * handle = hid_open(vid, pid, NULL); //from hid.c*/
     }
 }*/
 
-/**
- * constructor
-*/
-class Robot{
-    public:
-        CArray endpts = {std::complex<float>(0, 0), std::complex<float>(0,0), std::complex<float>(0,0)};
+
+//class Robot{
+   // public:
+        /*explicit Robot();
+        Robot(const Robot&) = delete;
+        Robot& operator=(const Robot&) = delete;
+        ~Robot() = default;*/
+     /*   CArray endpts = {std::complex<float>(0, 0), std::complex<float>(0,0), std::complex<float>(0,0)};
         int MAX = 3;
-        //SimpleComsDevice a;
-        //ros::Subscriber pos_subscriber_;
-        //ros::Publisher _servo_jp_publisher
-        SimpleComsDevice* s;
+        SimpleComsDevice* s;*/
 
     /**
      * Robot constructor
-     * @param nh - NodeHandle for ros
-     * Calls connect method from SimpleComsDevice
-     * TODO: okay seriously what if I fid just send the coordinates through ros and not the hid_write? somehow
+     * @param s - SimpleComsDevice called when calling ReadFloats and initializing
+     *  Calls connect method from SimpleComsDevice
     */
-    Robot(SimpleComsDevice *s){
+    Robot::Robot(SimpleComsDevice *s){
         //SimpleComsDevice a;
         //this->a = a;
 
-        this->s = s;
+        Robot::s = s;
         s->connect();
-
-        //subscribe to and publish a dummy node for testing
-        //pos_subscriber_ = nh->subscribe("pos_command", 10, &Robot::callbackPosCommand, this);
-        /*pos_subscriber_ = nh->subscribe(
-            "pos_command", 10, &Robot::callbackPosCommand, this);
-        _servo_jp_publisher = nh->advertise<sensor_msgs::JointState>("servo_jp", 10);*/
     };
 
-    void scddisconnect(){
+    void Robot::scddisconnect(){
         //ROS_INFO("Disconnecting...");
         s->disconnect();
     }
 
-
-
-
-    /**
-     * TODO: Callback function get position(?) from ros
-    */
-    /*void callbackPosCommand(const sensor_msgs::JointState &msg)
-    {
-        //ROS_INFO("callbackPosCommand");
-        std::vector<double> pos = msg.position;
-        int possize = pos.size();
-        CArray carr(possize);
-        //get positions and put them in another array then call servo_jp with contents
-        for(int i = 0; i < possize; i++){
-            
-            //ROS_INFO("%f", pos[i]);
-            carr[i] = std::complex<float>(pos[i],0);
-        }
-        //servo_jp(msg); //TODO: commenting out for now
-
-    }*/
 
     /**
      * runs a trajectory using coefficients passed in as tc, and a total
@@ -138,7 +109,7 @@ class Robot{
      * live as the robot moves through the trajectory.
      * TODO: I'm just going to try to get rid of D since I don't see why it's needed
     */
-    void run_trajectory(bool s, CArray tc, float t) {
+    void Robot::run_trajectory(bool s, CArray tc, float t) {
 
         //ROS_INFO("run_trajectory");
         //int Dcolsize = 8;
@@ -158,7 +129,7 @@ class Robot{
             //ROS_INFO("before the initialization");
             
             //ROS_INFO("before measured_js");
-            std::vector<CArray> jd = measured_js(true, true); //returns a 2X3 array
+            std::vector<CArray> jd = Robot::measured_js(true, true); //returns a 2X3 array
             //ROS_INFO("after measured_js");
 
             //jd size check
@@ -220,7 +191,7 @@ class Robot{
             while (currTLoop < t) {
                 //ROS_INFO("in while");
                 
-                std::vector<CArray> detCheckGet = this->measured_js(true, false); //2 rows by 3 cols
+                std::vector<CArray> detCheckGet = measured_js(true, false); //2 rows by 3 cols
 
                 
                 //another size check for detCheckGet
@@ -240,7 +211,7 @@ class Robot{
                 CArray detCheck = detCheckGet[0]; //row 1 ?
 
                 //ROS_INFO("Before jacob");
-                std::vector<std::vector<Complex>> jacobv = this->jacob3001(detCheck.apply(std::conj)); //transpose 3 by 1
+                std::vector<std::vector<Complex>> jacobv = jacob3001(detCheck.apply(std::conj)); //transpose 3 by 1
                 //ROS_INFO("After jacob");
 
                 //size check jacobv, again
@@ -309,10 +280,12 @@ class Robot{
                 //joint space
                 if (s == true) {
                     //ROS_INFO("joint space, before servo_jp");
-                    this->servo_jp({a1, a2, a3});//angles to get to desired position
+                    servo_jp({a1, a2, a3});//angles to get to desired position
                 }
                 //task space
                 else {
+
+                    //can use these to have inverse kinematics with just the
                     //TODO: also seems to require there be an extra TransformStamped message be sent for the task space. Is the ik3001 enough for that? Or do we still need to do that
                     //A = self.ik30();
                     //ROS_INFO("task space");
@@ -322,7 +295,7 @@ class Robot{
                     CArray conttrans = A.apply(std::conj);
 
                     //ROS_INFO("before servo_jp");
-                    this->servo_jp(conttrans);
+                    servo_jp(conttrans);
                 }
                 /*else {
                     std::vector<Complex> A = self.ik3001({a1, a2, a3});
@@ -351,7 +324,7 @@ class Robot{
                 }
 
                 //ROS_INFO("before sleep");
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                /*D[i][0] = jp[0];
                 D[i][1] = jp[1];
                 D[i][2] = jp[2];
@@ -399,13 +372,13 @@ class Robot{
      * writes information, calls writeFloats method from SimpleComsDevice
      * @param reportID, values the id of the info to write, pretty sure it's the id in the first byte of the information for calling hid_write, and the values to write
     */
-    void write(int id, std::vector<Complex> values){
+    void Robot::write(int id, std::vector<Complex> values){
         printf("write\n");
         fflush( stdout );
         printf("id: %d\n", id);
         fflush( stdout );
         try{
-             s->writeFloats(id, values);//Then convert it to floats cause the complex is just floats with twice as big array
+             Robot::s->writeFloats(id, values);//Then convert it to floats cause the complex is just floats with twice as big array
             
         }
         catch (const std::exception& e) {
@@ -445,8 +418,7 @@ class Robot{
      * @param reportID the report ID (or (byte) 0x00)
      * @return The number of bytes written, or -1 if an error occurs
     */
-    //TODO: pretty sure this should be CArray
-    std::vector<float> read(int reportID){
+    std::vector<float> Robot::read(int reportID){
         
         //matlab has
         //self.read(1910); 1910 is idOfCommand
@@ -491,7 +463,7 @@ class Robot{
      * moves the motors to the positions specified by the input array,
      * without interpolation
      * */
-    void servo_jp(CArray array) {
+    void Robot::servo_jp(CArray array) {
         //ROS_INFO("In servo jp");
 
         //check array size
@@ -503,7 +475,7 @@ class Robot{
         std::vector<Complex> packet(15); // creates an empty 15x1 array to write to the robot
         //TODO: according to the reference this is wrong - see how 0 and 1 are filled here
         packet[0] = Complex(1848); //ID
-        packet[1] = Complex(10000);//Duration of movement: TODO: HARDCODED, making it extra slow just in case
+        packet[1] = Complex(1000);//Duration of movement: TODO: HARDCODED, making it extra slow just in case
         packet[2] = Complex(0.0); // Interpolation mode: 0=linear, 1=sinusoidal; bypasses interpolation
         packet[3] = array[0]; // Motor 1 target position
         packet[4] = array[1]; // Motor 2 target position
@@ -524,8 +496,9 @@ class Robot{
 
     /**
      * calculates 6x3 manipulator Jacobian from 3x1 array of joint angles
+     * @param ja input joint angles
     */
-    std::vector<std::vector<Complex>> jacob3001(CArray ja) {
+    std::vector<std::vector<Complex>> Robot::jacob3001(CArray ja) {
 
         //ROS_INFO("jacob3001");
 
@@ -637,9 +610,8 @@ class Robot{
     /**
      * @param GETPOS, GETVEL bools that determine whether to return the positions, velocity, or both
      * @return the position and/or velocity values of the motors in a 2x3 array. 
-     * It only gets the positions and velocities - is anything else necessary?
     */
-    std::vector<CArray> measured_js(bool GETPOS, bool GETVEL) {
+    std::vector<CArray> Robot::measured_js(bool GETPOS, bool GETVEL) {
         //std::vector<std::vector<Complex>> returnArray(2, std::vector<Complex>(3, std::complex<float>(0.0, 0))); // creates a 2x3 return array
         //position
         /*ROS_INFO("measured_js");
@@ -768,7 +740,7 @@ class Robot{
     /**
      * Calculate the determinant
     */
-    Complex det(std::vector<std::vector<Complex>> matrix, int size)
+    Complex Robot::det(std::vector<std::vector<Complex>> matrix, int size)
     {
         //det input from inside function
         //ROS_INFO("det input from inside function");
@@ -843,7 +815,7 @@ class Robot{
      * completes pick and place operation
      * @param xi, yi, zi, color - the location to navigate to
     */
-    void pickAndPlace(float xi, float yi, float zi, int color) {
+    void Robot::pickAndPlace(float xi, float yi, float zi, int color) {
 
         //ROS_INFO("pickAndPlace");
         float traj_time = 3.0;
@@ -913,13 +885,13 @@ class Robot{
     }
 
     //need to exit
-    void stop(){
+    void Robot::stop(){
         printf("Stopping...\n");
         fflush( stdout );
         s->disconnectDeviceImp();
     }
 
-};
+//};
 
 /*
 class Traj_Planner{
@@ -976,7 +948,7 @@ int main(int argc, char **argv)
     std::vector<std::vector<float>> cRed(3, std::vector<float>(3, 0));
     //std::vector<float> desPos = cRed[0]; //why did I do that
     const char* path = "/dev/hidraw1";
-    SimpleComsDevice s(path);
+    SimpleComsDevice s;
     //init robot
     //Robot robot(&nh, &s);
     Robot robot(&s);
@@ -988,14 +960,18 @@ int main(int argc, char **argv)
     robot.servo_jp(in);
     printf("servo_jp done\n");
     fflush( stdout );
-    robot.stop();//already stops in SimplePacketComs
+    //robot.stop();
 
     //Home position
-    float x = 0;//desPos[0];
+    /*float x = 0;//desPos[0];
     float y = 1;//desPos[1];
-    float z = 0;//desPos[2];
+    float z = 0;//desPos[2];*/
     //std::this_thread::sleep_for(std::chrono::seconds(1));
-    //robot.pickAndPlace(x, y, z, (float)1.0); //test simple servo jp before doing this
+    /*robot.pickAndPlace(x, y, z, (float)1.0); //test simple servo jp before doing this
+    printf("pickAndPlace done\n");
+    fflush( stdout );*/
+    robot.stop();
+
 
     //ROS_INFO("Before spin");
 
